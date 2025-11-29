@@ -1,1 +1,8 @@
-<p>anime-card works!</p>
+<div class="card">
+  <div class="rank">#{{ anime.rank }}</div>
+  <img [src]="anime.image_url" [alt]="anime.title" loading="lazy" />
+  <div class="info">
+    <h3>{{ anime.title }}</h3>
+    <span class="score">⭐ {{ anime.score }}</span>
+  </div>
+</div>
