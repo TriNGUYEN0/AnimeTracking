@@ -1,4 +1,8 @@
 /* Définition des couleurs pour le mode sombre */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 :root {
   --bg-color: #121212;
   --card-bg: #1e1e1e;

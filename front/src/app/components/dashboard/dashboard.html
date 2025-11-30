@@ -1,0 +1,38 @@
+<div class="dashboard-container">
+  <h2>Tableau de Bord Analytique</h2>
+  
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Distribution des Genres (Top 10)</h3>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [data]="pieChartData()"
+          [type]="'pie'"
+          [options]="pieChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Évolution du Score par Année</h3>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [data]="lineChartData()"
+          [type]="'line'"
+          [options]="lineChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="chart-card full-width">
+      <h3>Corrélation: Popularité vs Score</h3>
+      <div class="chart-wrapper">
+        <canvas baseChart
+          [data]="scatterChartData()"
+          [type]="'scatter'"
+          [options]="scatterChartOptions">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>

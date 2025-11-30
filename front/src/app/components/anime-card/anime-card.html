@@ -1,8 +1,28 @@
 <div class="card">
   <div class="rank">#{{ anime.rank }}</div>
-  <img [src]="anime.image_url" [alt]="anime.title" loading="lazy" />
+  
+  <div class="image-container">
+    <img [src]="anime.image_url" [alt]="anime.title" loading="lazy" />
+    <div class="overlay">
+      <p class="synopsis">{{ anime.synopsis }}</p>
+    </div>
+  </div>
+
   <div class="info">
-    <h3>{{ anime.title }}</h3>
-    <span class="score">⭐ {{ anime.score }}</span>
+    <div class="header">
+      <h3 [title]="anime.title">{{ anime.title }}</h3>
+      <span class="score">⭐ {{ anime.score }}</span>
+    </div>
+    
+    <div class="meta">
+      <span>📅 {{ anime.year || 'N/A' }}</span>
+      <span>📺 {{ anime.episodes || '?' }} EPS</span>
+    </div>
+
+    <div class="genres">
+      @for (genre of anime.genres.slice(0, 3); track $index) {
+        <span class="badge">{{ genre }}</span>
+      }
+    </div>
   </div>
 </div>

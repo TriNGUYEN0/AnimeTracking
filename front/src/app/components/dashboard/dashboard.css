@@ -1,0 +1,40 @@
+.dashboard-container {
+  padding: 20px;
+  color: var(--text-primary);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--accent-color);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.chart-card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+h3 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}

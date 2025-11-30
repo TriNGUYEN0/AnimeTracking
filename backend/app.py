@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from anime_controller import anime_bp
+from analytics_controller import analytics_bp
 
 app = Flask(__name__)
 # Activer CORS pour permettre les requêtes depuis Angular
@@ -8,6 +9,8 @@ CORS(app)
 
 # Enregistrement des contrôleurs
 app.register_blueprint(anime_bp, url_prefix='/api/anime')
+app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
+
 
 if __name__ == '__main__':
     # Lancement du serveur en mode debug
