@@ -1,18 +1,42 @@
-/* Styles globaux pour l'application principale */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+.app-layout {
+  min-height: 100vh;
 }
+
 header {
-  margin-bottom: 30px;
+  background-color: #1f1f1f;
   border-bottom: 1px solid #333;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
+
 h1 {
   color: var(--accent-color);
+  margin: 0;
+  font-size: 1.5rem;
 }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+nav {
+  display: flex;
   gap: 20px;
+}
+
+nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: #fff;
+}
+
+nav a.active {
+  color: var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
 }
