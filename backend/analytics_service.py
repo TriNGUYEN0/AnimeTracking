@@ -12,11 +12,19 @@ class AnalyticsService:
         df = pd.DataFrame(data)
         return df
 
-    def get_genre_distribution(self):
+    def get_genre_distribution(self, year=None):
         df = self._get_dataframe()
         
-        # Vì một anime có nhiều genre, chúng ta cần "explode" danh sách này
-        # Giả sử cột 'genres' chứa list các dict [{'name': 'Action'}, ...]
+        # Filtrer par année si le paramètre est fourni
+        if year:
+            try:
+                # Chuyển đổi sang số nguyên để so sánh chính xác
+                target_year = int(year)
+                df = df[df['year'] == target_year]
+            except ValueError:
+                pass # Bỏ qua nếu year không phải số
+
+        # Logic cũ: Explode genres và đếm
         genres_list = []
         for index, row in df.iterrows():
             if 'genres' in row and isinstance(row['genres'], list):
@@ -24,7 +32,11 @@ class AnalyticsService:
                     genres_list.append(genre.get('name'))
         
         genres_series = pd.Series(genres_list)
-        # Đếm số lượng và lấy top 10
+        
+        if genres_series.empty:
+            return {"labels": [], "data": []}
+
+        # Lấy top 10
         distribution = genres_series.value_counts().head(10)
         
         return {

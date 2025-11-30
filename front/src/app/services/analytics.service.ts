@@ -9,8 +9,12 @@ export class AnalyticsService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:5000/api/analytics';
 
-  getGenreDistribution(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/genre-distribution`);
+  getGenreDistribution(year?: number): Observable<any> {
+    let url = `${this.apiUrl}/genre-distribution`;
+    if (year) {
+      url += `?year=${year}`;
+    }
+    return this.http.get(url);
   }
 
   getScoreByYear(): Observable<any> {
@@ -20,4 +24,5 @@ export class AnalyticsService {
   getPopularityVsScore(): Observable<any> {
     return this.http.get(`${this.apiUrl}/popularity-vs-score`);
   }
+
 }

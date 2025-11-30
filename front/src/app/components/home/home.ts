@@ -15,7 +15,11 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.animeService.getTopAnime().subscribe({
-      next: (data) => this.animeList.set(data),
+      next: (data) => {
+        const sortedData = data.sort((a, b) => a.rank - b.rank);
+        
+        this.animeList.set(sortedData);
+      },
       error: (err) => console.error('Erreur:', err)
     });
   }

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from analytics_service import AnalyticsService
 
 analytics_bp = Blueprint('analytics', __name__)
@@ -6,7 +6,8 @@ service = AnalyticsService()
 
 @analytics_bp.route('/genre-distribution', methods=['GET'])
 def get_genre_distribution():
-    data = service.get_genre_distribution()
+    year = request.args.get('year')
+    data = service.get_genre_distribution(year)
     return jsonify(data)
 
 @analytics_bp.route('/score-by-year', methods=['GET'])

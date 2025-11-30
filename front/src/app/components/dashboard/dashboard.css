@@ -1,40 +1,121 @@
 .dashboard-container {
   padding: 20px;
   color: var(--text-primary);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   color: var(--accent-color);
+  font-size: 2rem;
+  letter-spacing: 1px;
 }
 
 .charts-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr 1fr; /* Chia đôi màn hình */
+  gap: 24px;
 }
 
+/* Style cho từng thẻ chứa biểu đồ */
 .chart-card {
   background-color: var(--card-bg);
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Cột full chiều ngang cho biểu đồ Scatter */
 .full-width {
   grid-column: 1 / -1;
 }
 
-.chart-wrapper {
-  position: relative;
-  height: 300px;
-  width: 100%;
+/* Header của Card: Chứa tiêu đề và bộ lọc nằm ngang hàng */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  min-height: 40px;
 }
 
-h3 {
-  text-align: center;
-  margin-bottom: 15px;
+.card-header h3 {
+  margin: 0;
   font-size: 1.1rem;
   color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Khung chứa Canvas biểu đồ */
+.chart-wrapper {
+  position: relative;
+  height: 350px;
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tăng chiều cao riêng cho Scatter chart */
+.scatter-wrapper {
+  height: 400px;
+}
+
+/* Style cho Dropdown chọn năm */
+.year-select {
+  background-color: #2c2c2c;
+  color: var(--text-primary);
+  border: 1px solid #444;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  appearance: none; /* Ẩn mũi tên mặc định của trình duyệt */
+  
+  /* Tạo mũi tên custom */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23bb86fc%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 10px auto;
+  padding-right: 35px;
+}
+
+.year-select:hover {
+  border-color: var(--accent-color);
+  background-color: #363636;
+}
+
+.year-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
+}
+
+/* Responsive: Chuyển về 1 cột trên màn hình nhỏ */
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .filter-controls {
+    width: 100%;
+  }
+  
+  .year-select {
+    width: 100%;
+  }
 }
