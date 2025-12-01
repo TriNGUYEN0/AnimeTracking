@@ -47,11 +47,11 @@
       
       <div class="chart-card">
         <div class="card-header">
-          <h3>Distribution des Genres (Top 10)</h3>
+          <h3>Distribution of Top 10 Genres</h3>
           
           <div class="filter-controls">
             <select (change)="onYearFilterChange($event)" class="year-select">
-              <option value="">Toutes les années</option>
+              <option value="">All years</option>
               @for (year of availableYears(); track year) {
                 <option [value]="year">{{ year }}</option>
               }
@@ -113,7 +113,7 @@
 
       <div class="chart-card">
         <div class="card-header">
-          <h3>Origine des Animes (Source)</h3>
+          <h3>Origins of Animes (Source)</h3>
         </div>
         <div class="chart-wrapper">
           <canvas baseChart

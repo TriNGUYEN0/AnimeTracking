@@ -36,7 +36,6 @@ export class AnalyticsService {
     return this.http.get(`${this.apiUrl}/top-genres-by-score`);
   }
 
-  // ... (giữ nguyên các hàm cũ) ...
 
   getTopStudios(): Observable<any> {
     return this.http.get(`${this.apiUrl}/top-studios`);

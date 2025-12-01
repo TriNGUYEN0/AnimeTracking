@@ -126,7 +126,7 @@ export class DashboardComponent implements OnInit {
     plugins: {
       legend: { 
         position: 'right', 
-        labels: { color: '#e0e0e0', padding: 20 } 
+        labels: { color: '#e0e0e0', padding: 15 } 
       },
       tooltip: {
         callbacks: {

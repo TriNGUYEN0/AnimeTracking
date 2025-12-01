@@ -1,11 +1,32 @@
 <div class="container">
   <div class="header-section">
-    <h2>Top Anime</h2>
+    <h2>Top Anime by Rating</h2>
   </div>
   
-  <main class="grid">
-    @for (anime of animeList(); track anime.rank) {
-      <app-anime-card [anime]="anime" />
-    }
-  </main>
+  <div class="carousel-container">
+    
+    <button class="nav-btn prev" (click)="prevSlide()" [disabled]="currentIndex() === 0">
+      ❮
+    </button>
+    
+    <div class="carousel-window">
+      <div class="carousel-track" 
+           [style.transform]="'translateX(-' + (currentIndex() * (100 / itemsPerPage)) + '%)'">
+        
+        @for (anime of animeList(); track anime.rank) {
+          <div class="carousel-item" [style.flex-basis.%]="100 / itemsPerPage">
+            <app-anime-card [anime]="anime" />
+          </div>
+        }
+
+      </div>
+    </div>
+
+    <button class="nav-btn next" 
+            (click)="nextSlide()" 
+            [disabled]="currentIndex() >= animeList().length - itemsPerPage">
+      ❯
+    </button>
+
+  </div>
 </div>
