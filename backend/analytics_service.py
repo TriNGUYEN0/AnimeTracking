@@ -144,3 +144,42 @@ class AnalyticsService:
             "labels": avg_scores.index.tolist(),
             "data": [round(x, 2) for x in avg_scores.values.tolist()]
         }
+    
+    # ... (các phần trên giữ nguyên) ...
+
+    def get_top_studios(self):
+        df = self._get_dataframe()
+        if df.empty or 'studios' not in df.columns:
+            return {"labels": [], "data": []}
+
+        # Xử lý danh sách Studios (tương tự như Genres)
+        studios_list = []
+        for index, row in df.iterrows():
+            if isinstance(row['studios'], list):
+                for studio in row['studios']:
+                    studios_list.append(studio.get('name'))
+        
+        if not studios_list:
+            return {"labels": [], "data": []}
+
+        # Đếm và lấy Top 10
+        studios_series = pd.Series(studios_list)
+        top_studios = studios_series.value_counts().head(10)
+
+        return {
+            "labels": top_studios.index.tolist(),
+            "data": top_studios.values.tolist()
+        }
+
+    def get_source_distribution(self):
+        df = self._get_dataframe()
+        if df.empty or 'source' not in df.columns:
+            return {"labels": [], "data": []}
+
+        # Đếm số lượng theo nguồn (Manga, Original, etc.)
+        source_counts = df['source'].value_counts()
+
+        return {
+            "labels": source_counts.index.tolist(),
+            "data": source_counts.values.tolist()
+        }

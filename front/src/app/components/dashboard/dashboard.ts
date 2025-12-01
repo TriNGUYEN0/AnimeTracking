@@ -25,32 +25,28 @@ export class DashboardComponent implements OnInit {
   keyMetrics = signal<KeyMetrics | null>(null);
 
   // Pie Chart Configuration
-  public pieChartOptions: ChartConfiguration<'pie'>['options'] = {
+  public genreChartOptions: ChartConfiguration<'polarArea'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '60%',
-    layout: {
-      padding: 20
+    scales: {
+      r: {
+        grid: { color: '#333' }, // Màu lưới tối
+        ticks: { 
+          display: false, // Ẩn số trên trục bán kính cho gọn
+          backdropColor: 'transparent' 
+        }
+      }
     },
     plugins: {
       legend: {
         position: 'right',
-        labels: {
-          color: '#e0e0e0',
-          font: { size: 12 },
-          padding: 15
-        }
-      },
-      title: { display: false }
-    },
-    elements: {
-      arc: {
-        borderWidth: 2,
-        borderColor: '#1e1e1e'
+        labels: { color: '#e0e0e0', font: { size: 12 }, padding: 15 }
       }
     }
   };
 
+  // Đổi tên biến cho rõ nghĩa: pieChartData -> genreChartData
+  public genreChartData = signal<ChartData<'polarArea'>>({ labels: [], datasets: [] });
   public pieChartData = signal<ChartData<'pie'>>({ 
     labels: [], 
     datasets: [{ 
@@ -111,6 +107,48 @@ export class DashboardComponent implements OnInit {
   };
   public barChartData = signal<ChartData<'bar'>>({ labels: [], datasets: [] });
 
+  public studioChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y', // Biểu đồ ngang để hiển thị tên Studio dài cho dễ đọc
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#333' }, ticks: { color: '#b3b3b3', stepSize: 1 } },
+      y: { grid: { display: false }, ticks: { color: '#e0e0e0' } }
+    }
+  };
+  public studioChartData = signal<ChartData<'bar'>>({ labels: [], datasets: [] });
+
+  public sourceChartOptions: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '50%', // Độ rỗng ở giữa (Vành khuyên)
+    plugins: {
+      legend: { 
+        position: 'right', 
+        labels: { color: '#e0e0e0', padding: 20 } 
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            // Hiển thị thêm % cho dễ hình dung
+            const label = context.label || '';
+            const value = context.raw as number;
+
+            const dataArray = context.dataset.data as number[];
+            const total = dataArray.reduce((acc, curr) => acc + curr, 0);            
+            const percentage = Math.round((value / total) * 100) + '%';
+            return ` ${label}: ${value} (${percentage})`;
+          }
+        }
+      }
+    }
+    // Doughnut không cần scales
+  };
+  
+  // Lưu ý: Đổi type 'polarArea' thành 'doughnut'
+  public sourceChartData = signal<ChartData<'doughnut'>>({ labels: [], datasets: [] });
+
 
   exportToPDF() {
     const data = document.getElementById('dashboard-content');
@@ -145,6 +183,8 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.loadInitialData();
     this.loadKeyMetrics();
+    this.loadTopStudios();
+    this.loadSourceDistribution();
   }
 
   loadInitialData() {
@@ -174,12 +214,25 @@ export class DashboardComponent implements OnInit {
 
   loadGenreData(year?: number) {
     this.analyticsService.getGenreDistribution(year).subscribe(res => {
-      this.pieChartData.set({
+      this.genreChartData.set({
         labels: res.labels,
         datasets: [{
           data: res.data,
-          backgroundColor: this.pieChartData().datasets[0].backgroundColor,
-          hoverOffset: 10
+          // Sử dụng bảng màu rực rỡ
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)',
+            'rgba(231, 233, 237, 0.8)',
+            'rgba(118, 215, 196, 0.8)',
+            'rgba(241, 148, 138, 0.8)',
+            'rgba(133, 193, 233, 0.8)'
+          ],
+          borderWidth: 1,
+          borderColor: '#1e1e1e' // Viền trùng màu nền để tạo khoảng cách đẹp
         }]
       });
     });
@@ -207,6 +260,43 @@ export class DashboardComponent implements OnInit {
           backgroundColor: colors, 
           borderRadius: 10,
           barThickness: 80
+        }]
+      });
+    });
+  }
+
+  loadTopStudios() {
+    this.analyticsService.getTopStudios().subscribe(res => {
+      this.studioChartData.set({
+        labels: res.labels,
+        datasets: [{
+          data: res.data,
+          backgroundColor: '#03dac6', // Màu xanh ngọc
+          borderRadius: 4,
+          barThickness: 15
+        }]
+      });
+    });
+  }
+
+  loadSourceDistribution() {
+    this.analyticsService.getSourceDistribution().subscribe(res => {
+      this.sourceChartData.set({
+        labels: res.labels,
+        datasets: [{
+          data: res.data,
+          backgroundColor: [
+            '#FF6384', // Manga (Màu nổi nhất)
+            '#36A2EB', // Original
+            '#FFCE56', // Light Novel
+            '#4BC0C0', // Game
+            '#9966FF', // Visual Novel
+            '#FF9F40', // Khác
+            '#C9CBCF'
+          ],
+          hoverOffset: 10,
+          borderWidth: 2,
+          borderColor: '#1e1e1e'
         }]
       });
     });

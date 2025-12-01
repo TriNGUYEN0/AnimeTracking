@@ -31,3 +31,15 @@ def get_key_metrics():
 def get_top_genres_by_score():
     data = service.get_top_genres_by_score()
     return jsonify(data)
+
+# ... (các route khác) ...
+
+@analytics_bp.route('/top-studios', methods=['GET'])
+def get_top_studios():
+    data = service.get_top_studios()
+    return jsonify(data)
+
+@analytics_bp.route('/source-distribution', methods=['GET'])
+def get_source_distribution():
+    data = service.get_source_distribution()
+    return jsonify(data)
