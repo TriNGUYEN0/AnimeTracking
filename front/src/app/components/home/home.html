@@ -1,32 +1,66 @@
-<div class="container">
-  <div class="header-section">
-    <h2>Top Anime by Rating</h2>
-  </div>
+<div class="home-container">
   
-  <div class="carousel-container">
-    
-    <button class="nav-btn prev" (click)="prevSlide()" [disabled]="currentIndex() === 0">
-      ❮
-    </button>
-    
-    <div class="carousel-window">
-      <div class="carousel-track" 
-           [style.transform]="'translateX(-' + (currentIndex() * (100 / itemsPerPage)) + '%)'">
-        
-        @for (anime of animeList(); track anime.rank) {
-          <div class="carousel-item" [style.flex-basis.%]="100 / itemsPerPage">
-            <app-anime-card [anime]="anime" />
+  @if (featuredAnime(); as hero) {
+    <div class="hero-section" [style.backgroundImage]="'url(' + (hero.large_image_url || hero.image_url) + ')'">      
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <span class="hero-rank">#1 Trending</span>
+          <h1>{{ hero.title }}</h1>
+          <div class="hero-meta">
+            <span class="score">⭐ {{ hero.score }}</span>
+            <span>{{ hero.year || 'N/A' }}</span>
+            <span>{{ hero.episodes || '?' }} Episodes</span>
           </div>
-        }
+          <p class="hero-synopsis">{{ hero.synopsis }}</p>
+          <button class="btn-watch">▶ Watch Now</button>
+        </div>
+      </div>
+    </div>
+  }
 
+  <div class="content-container">
+    <div class="mood-section">
+      <h3>What's your mood today?</h3>
+      <div class="mood-buttons">
+        @for (mood of moods; track mood.label) {
+          <button 
+            [class.active]="selectedMood() === mood.genre"
+            (click)="filterByMood(mood.genre)">
+            <span class="mood-icon">{{ mood.icon }}</span>
+            {{ mood.label }}
+          </button>
+        }
       </div>
     </div>
 
-    <button class="nav-btn next" 
-            (click)="nextSlide()" 
-            [disabled]="currentIndex() >= animeList().length - itemsPerPage">
-      ❯
-    </button>
+    <div class="carousel-section">
+      <div class="section-header">
+        <h2>
+          @if(selectedMood() === 'All') { Top Anime } 
+          @else { Top {{ selectedMood() }} }
+        </h2>
+        <div class="nav-controls">
+          <button class="nav-btn" (click)="prevSlide()" [disabled]="currentIndex() === 0">❮</button>
+          <button class="nav-btn" (click)="nextSlide()" [disabled]="currentIndex() >= displayList().length - itemsPerPage">❯</button>
+        </div>
+      </div>
+      
+      <div class="carousel-window">
+        <div class="carousel-track" 
+             [style.transform]="'translateX(-' + (currentIndex() * (100 / itemsPerPage)) + '%)'">
+          
+          @for (anime of displayList(); track anime.rank) {
+            <div class="carousel-item" [style.flex-basis.%]="100 / itemsPerPage">
+              <app-anime-card [anime]="anime" />
+            </div>
+          }
+          
+          @if (displayList().length === 0) {
+            <div class="empty-state">No anime found for this mood 😔</div>
+          }
 
+        </div>
+      </div>
+    </div>
   </div>
 </div>

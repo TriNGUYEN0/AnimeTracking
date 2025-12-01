@@ -176,7 +176,7 @@ export class DashboardComponent implements OnInit {
         // Tiêu đề chính
         pdf.setFontSize(22);
         pdf.setTextColor(40); // Màu xám đậm
-        pdf.text('Rapport Analytique Anime', 105, 20, { align: 'center' }); // x=105 là giữa trang A4
+        pdf.text('Anime Analytics Report', 105, 20, { align: 'center' }); // x=105 là giữa trang A4
 
         pdf.setFontSize(15);
         pdf.setTextColor(40); // Màu xám đậm

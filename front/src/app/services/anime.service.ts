@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 export interface Anime {
   title: string;
   image_url: string;
+  large_image_url: string;
   score: number;
   rank: number;
   episodes: number;

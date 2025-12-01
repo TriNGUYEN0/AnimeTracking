@@ -1,69 +1,199 @@
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+/* Reset container */
+.home-container {
+  width: 100%;
 }
 
-.header-section {
+/* --- HERO SECTION --- */
+.hero-section {
+  height: 500px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  margin-bottom: 40px;
+  /* Mask để làm mờ phần dưới ảnh hòa vào nền web */
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.4) 100%);
+  display: flex;
+  align-items: center;
+  padding-left: 5%;
+}
+
+.hero-content {
+  max-width: 600px;
+  color: white;
+  animation: slideIn 0.8s ease-out;
+}
+
+.hero-rank {
+  background: var(--accent-color);
+  color: black;
+  padding: 5px 10px;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin: 15px 0;
+  line-height: 1.1;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #ccc;
+}
+
+.hero-synopsis {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ddd;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 25px;
+}
+
+.btn-watch {
+  background: var(--accent-color);
+  color: black;
+  border: none;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-watch:hover {
+  transform: scale(1.05);
+  background: white;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* --- CONTENT CONTAINER --- */
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 50px 20px;
+}
+
+/* --- MOOD SECTION --- */
+.mood-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.mood-section h3 {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  font-weight: normal;
+}
+
+.mood-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.mood-buttons button {
+  background: #2c2c2c;
+  border: 1px solid #444;
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mood-buttons button:hover {
+  background: #3a3a3a;
+  border-color: var(--accent-color);
+}
+
+.mood-buttons button.active {
+  background: var(--accent-color);
+  color: black;
+  border-color: var(--accent-color);
+  font-weight: bold;
+}
+
+/* --- CAROUSEL (Style lại một chút cho khớp layout mới) --- */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-/* Container bao quanh cả nút và slider */
-.carousel-container {
+.nav-controls {
   display: flex;
-  align-items: center;
-  gap: 15px;
-  position: relative;
+  gap: 10px;
 }
 
-/* Khung nhìn: Ẩn các phần tử bị tràn ra ngoài */
 .carousel-window {
   overflow: hidden;
   width: 100%;
-  border-radius: 12px; /* Bo tròn khung chứa */
 }
 
-/* Thanh trượt: Chứa tất cả các thẻ nằm ngang */
 .carousel-track {
   display: flex;
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Hiệu ứng trượt mượt */
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Item: Chiếm chính xác 1/5 chiều rộng (20%) */
 .carousel-item {
-  flex-shrink: 0; /* Không bị co lại */
-  padding: 0 10px; /* Khoảng cách giữa các thẻ */
+  flex-shrink: 0;
+  padding: 0 10px;
   box-sizing: border-box;
 }
 
-/* Style cho nút điều hướng */
 .nav-btn {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--accent-color);
-  border: 1px solid var(--accent-color);
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
   cursor: pointer;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  z-index: 10;
+  transition: background 0.2s;
 }
 
 .nav-btn:hover:not(:disabled) {
   background: var(--accent-color);
   color: black;
-  transform: scale(1.1);
-  box-shadow: 0 0 10px var(--accent-color);
 }
 
 .nav-btn:disabled {
   opacity: 0.3;
-  cursor: not-allowed;
-  border-color: #555;
-  color: #555;
+  cursor: default;
+}
+
+.empty-state {
+  width: 100%;
+  text-align: center;
+  padding: 50px;
+  color: var(--text-secondary);
+  font-style: italic;
 }
