@@ -179,3 +179,113 @@ h2 {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Tự động chia cột */
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.kpi-card {
+  background-color: var(--card-bg);
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(187, 134, 252, 0.15); /* Hiệu ứng phát sáng nhẹ màu tím */
+  border-color: var(--accent-color);
+}
+
+.kpi-icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Icon tròn */
+  color: var(--accent-color);
+}
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.kpi-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive: Trên mobile sẽ xếp dọc */
+@media (max-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ... (giữ nguyên style cũ) ... */
+
+/* Header Layout */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.page-header h2 {
+  margin: 0; /* Xóa margin cũ của h2 để căn hàng đẹp hơn */
+}
+
+/* Style cho nút Export PDF */
+.btn-export {
+  background-color: var(--accent-color);
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s, transform 0.2s;
+  font-size: 0.95rem;
+}
+
+.btn-export:hover {
+  background-color: #a370f7;
+  transform: translateY(-2px);
+}
+
+.btn-export:active {
+  transform: translateY(0);
+}
+
+/* Đảm bảo nền của dashboard đúng màu khi chụp hình */
+#dashboard-content {
+  background-color: var(--bg-color); /* Quan trọng cho PDF */
+  padding: 10px; /* Thêm chút đệm để PDF không bị sát lề */
+}

@@ -6,25 +6,28 @@ class AnalyticsService:
         self.repository = AnimeRepository()
 
     def _get_dataframe(self):
-        # Lấy dữ liệu thô từ repository
         data = self.repository.get_top_anime_data()
-        # Chuyển đổi thành Pandas DataFrame
-        df = pd.DataFrame(data)
-        return df
+        # Nếu không có data, trả về DataFrame rỗng ngay
+        if not data:
+            return pd.DataFrame()
+        return pd.DataFrame(data)
 
     def get_genre_distribution(self, year=None):
         df = self._get_dataframe()
         
-        # Filtrer par année si le paramètre est fourni
+        # Kiểm tra dữ liệu rỗng
+        if df.empty or 'genres' not in df.columns:
+            return {"labels": [], "data": []}
+        
         if year:
             try:
-                # Chuyển đổi sang số nguyên để so sánh chính xác
                 target_year = int(year)
-                df = df[df['year'] == target_year]
+                # Kiểm tra cột year có tồn tại không trước khi lọc
+                if 'year' in df.columns:
+                    df = df[df['year'] == target_year]
             except ValueError:
-                pass # Bỏ qua nếu year không phải số
+                pass
 
-        # Logic cũ: Explode genres và đếm
         genres_list = []
         for index, row in df.iterrows():
             if 'genres' in row and isinstance(row['genres'], list):
@@ -32,13 +35,10 @@ class AnalyticsService:
                     genres_list.append(genre.get('name'))
         
         genres_series = pd.Series(genres_list)
-        
         if genres_series.empty:
             return {"labels": [], "data": []}
 
-        # Lấy top 10
         distribution = genres_series.value_counts().head(10)
-        
         return {
             "labels": distribution.index.tolist(),
             "data": distribution.values.tolist()
@@ -47,12 +47,13 @@ class AnalyticsService:
     def get_score_by_year(self):
         df = self._get_dataframe()
         
-        # Trích xuất năm từ cột 'year' hoặc 'aired'
-        # Xử lý dữ liệu thiếu hoặc sai định dạng
-        df['year'] = df['year'].fillna(0).astype(int)
-        df = df[df['year'] > 0] # Lọc bỏ năm không hợp lệ
+        # Kiểm tra các cột cần thiết
+        if df.empty or 'year' not in df.columns or 'score' not in df.columns:
+            return {"labels": [], "data": []}
         
-        # Gom nhóm theo năm và tính điểm trung bình
+        df['year'] = df['year'].fillna(0).astype(int)
+        df = df[df['year'] > 0]
+        
         score_by_year = df.groupby('year')['score'].mean().sort_index()
         
         return {
@@ -63,23 +64,27 @@ class AnalyticsService:
     def get_popularity_vs_score(self):
         df = self._get_dataframe()
         
-        # Lấy 2 cột cần thiết
-        scatter_data = df[['popularity', 'score', 'title']].dropna()
+        # Kiểm tra cột để tránh KeyError
+        required_cols = ['popularity', 'score', 'title']
+        if df.empty or not all(col in df.columns for col in required_cols):
+            return []
         
-        # Định dạng dữ liệu cho biểu đồ Scatter (x, y)
+        scatter_data = df[required_cols].dropna()
+        
         data = []
         for index, row in scatter_data.iterrows():
             data.append({
                 "x": row['popularity'],
                 "y": row['score'],
-                "label": row['title'] # Thêm tên để hiển thị khi hover
+                "label": row['title']
             })
             
         return data
-    
+
     def get_key_metrics(self):
         df = self._get_dataframe()
         
+        # Kiểm tra nếu dataframe rỗng
         if df.empty:
             return {
                 "total_anime": 0,
@@ -88,9 +93,22 @@ class AnalyticsService:
                 "active_years": 0
             }
 
+        # Kiểm tra các cột cần thiết trước khi tính toán
+        avg_score = 0
+        if 'score' in df.columns:
+            avg_score = round(df['score'].mean(), 2)
+            
+        total_members = 0
+        if 'members' in df.columns:
+            total_members = int(df['members'].sum())
+            
+        active_years = 0
+        if 'year' in df.columns:
+            active_years = int(df['year'].nunique())
+
         return {
-            "total_anime": int(df.shape[0]), # Tổng số dòng
-            "avg_score": round(df['score'].mean(), 2), # Điểm trung bình làm tròn 2 số
-            "total_members": int(df['members'].sum()), # Tổng số thành viên cộng lại
-            "active_years": int(df['year'].nunique()) # Số lượng năm duy nhất có trong danh sách
+            "total_anime": int(df.shape[0]),
+            "avg_score": avg_score,
+            "total_members": total_members,
+            "active_years": active_years
         }

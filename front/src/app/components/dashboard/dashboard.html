@@ -1,53 +1,81 @@
 <div class="dashboard-container">
-  <h2>Tableau de Bord Analytique</h2>
-  
-  <div class="charts-grid">
-    <div class="chart-card">
-      <div class="card-header">
-        <h3>Distribution des Genres (Top 10)</h3>
-        
-        <div class="filter-controls">
-          <select (change)="onYearFilterChange($event)" class="year-select">
-            <option value="">Toutes les années</option>
-            @for (year of availableYears(); track year) {
-              <option [value]="year">{{ year }}</option>
-            }
-          </select>
+  <div class="page-header">
+    <h2>Tableau de Bord Analytique</h2>
+    <button class="btn-export" (click)="exportToPDF()">
+      📥 Télécharger PDF
+    </button>
+  </div>
+
+  <div id="dashboard-content">
+    @if (keyMetrics(); as metrics) {
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-icon">🎬</span>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ metrics.total_anime }}</span>
+            <span class="kpi-label">Top Animes</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-icon">⭐</span>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ metrics.avg_score }}</span>
+            <span class="kpi-label">Average Score</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-icon">👥</span>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ (metrics.total_members / 1000000) | number:'1.1-1' }}M</span>
+            <span class="kpi-label">Total Members</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-icon">📅</span>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ metrics.active_years }}</span>
+            <span class="kpi-label">Active years</span>
+          </div>
+        </div>
+      </div>
+    }
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>Genre distribution (Top 10)</h3>
+          <div class="filter-controls">
+            <select (change)="onYearFilterChange($event)" class="year-select">
+              <option value="">All years</option>
+              @for (year of availableYears(); track year) {
+                <option [value]="year">{{ year }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas baseChart [data]="pieChartData()" [type]="'pie'" [options]="pieChartOptions"></canvas>
         </div>
       </div>
 
-      <div class="chart-wrapper">
-        <canvas baseChart
-          [data]="pieChartData()"
-          [type]="'pie'"
-          [options]="pieChartOptions">
-        </canvas>
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>Yearly scrore's evolution </h3>
+        </div>
+        <div class="chart-wrapper">
+          <canvas baseChart [data]="lineChartData()" [type]="'line'" [options]="lineChartOptions"></canvas>
+        </div>
       </div>
-    </div>
 
-    <div class="chart-card">
-      <div class="card-header">
-        <h3>Évolution du Score par Année</h3>
-      </div>
-      <div class="chart-wrapper">
-        <canvas baseChart
-          [data]="lineChartData()"
-          [type]="'line'"
-          [options]="lineChartOptions">
-        </canvas>
-      </div>
-    </div>
-
-    <div class="chart-card full-width">
-      <div class="card-header">
-        <h3>Corrélation: Popularité vs Score</h3>
-      </div>
-      <div class="chart-wrapper scatter-wrapper">
-        <canvas baseChart
-          [data]="scatterChartData()"
-          [type]="'scatter'"
-          [options]="scatterChartOptions">
-        </canvas>
+      <div class="chart-card full-width">
+        <div class="card-header">
+          <h3>Corrélation: Popularité vs Score</h3>
+        </div>
+        <div class="chart-wrapper scatter-wrapper">
+          <canvas baseChart [data]="scatterChartData()" [type]="'scatter'" [options]="scatterChartOptions"></canvas>
+        </div>
       </div>
     </div>
   </div>

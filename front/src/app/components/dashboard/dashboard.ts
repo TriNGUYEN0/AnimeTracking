@@ -1,13 +1,18 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
-import { AnalyticsService } from '../../services/analytics.service';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { KeyMetrics } from '../../services/analytics.service';
+import { AnalyticsService, KeyMetrics } from '../../services/analytics.service';
+import { ChartConfiguration, ChartData } from 'chart.js';
+import { DecimalPipe } from '@angular/common'; // 1. Import DecimalPipe
+import jsPDF from 'jspdf'; // Importer jsPDF
+import html2canvas from 'html2canvas'; // Importer html2canvas
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [BaseChartDirective],
+  imports: [
+    BaseChartDirective, 
+    DecimalPipe // 2. Thêm vào imports để sử dụng được pipe '| number'
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -19,11 +24,11 @@ export class DashboardComponent implements OnInit {
 
   keyMetrics = signal<KeyMetrics | null>(null);
 
-  // --- SỬA LỖI Ở ĐÂY: Thêm <'pie'> vào ChartConfiguration ---
+  // Pie Chart Configuration
   public pieChartOptions: ChartConfiguration<'pie'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '60%', // Giờ đây TypeScript sẽ hiểu thuộc tính này
+    cutout: '60%',
     layout: {
       padding: 20
     },
@@ -58,8 +63,7 @@ export class DashboardComponent implements OnInit {
     }] 
   });
 
-  // Line Chart Data
-  // Tương tự, thêm <'line'> để chặt chẽ hơn (tùy chọn)
+  // Line Chart Configuration
   public lineChartOptions: ChartConfiguration<'line'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -72,9 +76,9 @@ export class DashboardComponent implements OnInit {
       x: { ticks: { color: '#b3b3b3' }, grid: { color: '#333' } }
     }
   };
-  public lineChartData = signal<ChartData<'line'>>({ labels: [], datasets: [{ data: [], label: 'Score Moyen' }] });
+  public lineChartData = signal<ChartData<'line'>>({ labels: [], datasets: [{ data: [], label: 'Score average' }] });
 
-  // Scatter Chart Data
+  // Scatter Chart Configuration
   public scatterChartOptions: ChartConfiguration<'scatter'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -96,6 +100,36 @@ export class DashboardComponent implements OnInit {
   };
   public scatterChartData = signal<ChartData<'scatter'>>({ datasets: [] });
 
+  exportToPDF() {
+    const data = document.getElementById('dashboard-content');
+    
+    if (data) {
+      // Capture du contenu HTML en image (canvas)
+      html2canvas(data, { 
+        scale: 2, // Augmenter l'échelle pour une meilleure qualité
+        useCORS: true, // Pour gérer les images externes si nécessaire
+        backgroundColor: '#121212' // Force le fond sombre
+      }).then(canvas => {
+        const imgWidth = 208; // Largeur A4 en mm (environ)
+        const pageHeight = 295; // Hauteur A4 en mm
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        
+        const contentDataURL = canvas.toDataURL('image/png');
+        
+        // Création du PDF (orientation portrait, unité mm, format A4)
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const position = 0;
+        
+        // Ajouter l'image au PDF
+        pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+        
+        // Sauvegarder le fichier avec un nom dynamique incluant la date
+        const dateStr = new Date().toISOString().split('T')[0];
+        pdf.save(`Anime_Dashboard_${dateStr}.pdf`);
+      });
+    }
+  }
+
   ngOnInit() {
     this.loadInitialData();
     this.loadKeyMetrics();
@@ -107,7 +141,7 @@ export class DashboardComponent implements OnInit {
         labels: res.labels,
         datasets: [{
           data: res.data,
-          label: 'Score Moyen',
+          label: 'Average Score',
           borderColor: '#bb86fc',
           backgroundColor: 'rgba(187, 134, 252, 0.2)',
           fill: 'origin',
