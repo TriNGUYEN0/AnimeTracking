@@ -28,12 +28,12 @@ export class AnalyticsService {
     return this.http.get(`${this.apiUrl}/score-by-year`);
   }
 
-  getPopularityVsScore(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/popularity-vs-score`);
-  }
-
   getKeyMetrics(): Observable<KeyMetrics> {
     return this.http.get<KeyMetrics>(`${this.apiUrl}/key-metrics`);
+  }
+
+  getTopGenresByScore(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/top-genres-by-score`);
   }
 
 }

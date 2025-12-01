@@ -70,13 +70,16 @@
       </div>
 
       <div class="chart-card full-width">
-        <div class="card-header">
-          <h3>Corrélation: Popularité vs Score</h3>
-        </div>
-        <div class="chart-wrapper scatter-wrapper">
-          <canvas baseChart [data]="scatterChartData()" [type]="'scatter'" [options]="scatterChartOptions"></canvas>
-        </div>
+      <div class="card-header">
+        <h3>Top 10 Genres by Score</h3>
       </div>
+      <div class="chart-wrapper scatter-wrapper"> <canvas baseChart
+          [data]="barChartData()"
+          [type]="'bar'"
+          [options]="barChartOptions">
+        </canvas>
+      </div>
+    </div>
     </div>
   </div>
 </div>

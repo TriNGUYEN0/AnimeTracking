@@ -24,3 +24,10 @@ def get_popularity_vs_score():
 def get_key_metrics():
     data = service.get_key_metrics()
     return jsonify(data)
+
+# ... (các import và route khác) ...
+
+@analytics_bp.route('/top-genres-by-score', methods=['GET'])
+def get_top_genres_by_score():
+    data = service.get_top_genres_by_score()
+    return jsonify(data)

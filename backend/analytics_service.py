@@ -112,3 +112,35 @@ class AnalyticsService:
             "total_members": total_members,
             "active_years": active_years
         }
+    
+
+    def get_top_genres_by_score(self):
+        df = self._get_dataframe()
+        
+        # Kiểm tra dữ liệu
+        if df.empty or 'genres' not in df.columns or 'score' not in df.columns:
+            return {"labels": [], "data": []}
+
+        # Tạo danh sách phẳng chứa (Genre, Score)
+        genre_scores = []
+        for index, row in df.iterrows():
+            if isinstance(row['genres'], list) and pd.notna(row['score']):
+                for g in row['genres']:
+                    genre_scores.append({
+                        'genre': g.get('name'),
+                        'score': row['score']
+                    })
+        
+        if not genre_scores:
+             return {"labels": [], "data": []}
+
+        # Tạo DataFrame tạm để tính toán
+        df_genres = pd.DataFrame(genre_scores)
+        
+        # Gom nhóm theo Genre, tính trung bình Score, sắp xếp giảm dần, lấy top 10
+        avg_scores = df_genres.groupby('genre')['score'].mean().sort_values(ascending=False).head(10)
+        
+        return {
+            "labels": avg_scores.index.tolist(),
+            "data": [round(x, 2) for x in avg_scores.values.tolist()]
+        }

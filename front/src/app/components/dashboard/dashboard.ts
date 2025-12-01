@@ -78,27 +78,39 @@ export class DashboardComponent implements OnInit {
   };
   public lineChartData = signal<ChartData<'line'>>({ labels: [], datasets: [{ data: [], label: 'Score average' }] });
 
-  // Scatter Chart Configuration
-  public scatterChartOptions: ChartConfiguration<'scatter'>['options'] = {
+ public barChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    scales: {
-      x: { 
-        title: { display: true, text: 'Popularity Rank', color: '#b3b3b3' },
-        ticks: { color: '#b3b3b3' },
-        grid: { color: '#333' }
-      },
-      y: { 
-        title: { display: true, text: 'Score', color: '#b3b3b3' },
-        ticks: { color: '#b3b3b3' },
-        grid: { color: '#333' }
+    // indexAxis: 'y', // <-- XÓA DÒNG NÀY để trở về mặc định (Cột đứng)
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => ` Score moyen: ${context.raw}`
+        }
       }
     },
-    plugins: {
-      legend: { labels: { color: '#e0e0e0' } }
+    scales: {
+      y: { // Trục Y bây giờ là Điểm số (Score)
+        beginAtZero: false,
+        min: 5, // Chỉnh min lên 6 để cột trông cao và rõ sự chênh lệch hơn
+        max: 10,
+        grid: { color: '#333' },
+        ticks: { color: '#b3b3b3' }
+      },
+      x: { // Trục X bây giờ là Tên Thể loại
+        ticks: { 
+          color: '#e0e0e0', 
+          font: { size: 11 },
+          maxRotation: 45, // Xoay chữ nghiêng nếu tên quá dài
+          minRotation: 45
+        },
+        grid: { display: false }
+      }
     }
   };
-  public scatterChartData = signal<ChartData<'scatter'>>({ datasets: [] });
+  public barChartData = signal<ChartData<'bar'>>({ labels: [], datasets: [] });
+
 
   exportToPDF() {
     const data = document.getElementById('dashboard-content');
@@ -157,7 +169,7 @@ export class DashboardComponent implements OnInit {
     });
 
     this.loadGenreData();
-    this.loadScatterData();
+    this.loadTopGenresByScore();
   }
 
   loadGenreData(year?: number) {
@@ -173,16 +185,28 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  loadScatterData() {
-    this.analyticsService.getPopularityVsScore().subscribe(res => {
-      this.scatterChartData.set({
+  loadTopGenresByScore() {
+    this.analyticsService.getTopGenresByScore().subscribe(res => {
+      const colors = [
+        '#FF6384', 
+        '#36A2EB', 
+        '#FFCE56', 
+        '#4BC0C0',
+        '#9966FF', 
+        '#FF9F40', 
+        '#E7E9ED',
+        '#76D7C4', 
+        '#F1948A', 
+        '#85C1E9'  
+      ];
+
+      this.barChartData.set({
+        labels: res.labels,
         datasets: [{
-          data: res,
-          label: 'Anime',
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          backgroundColor: '#03dac6',
-          pointBackgroundColor: '#03dac6'
+          data: res.data,
+          backgroundColor: colors, 
+          borderRadius: 10,
+          barThickness: 80
         }]
       });
     });
