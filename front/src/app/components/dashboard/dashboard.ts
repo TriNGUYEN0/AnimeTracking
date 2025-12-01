@@ -3,8 +3,6 @@ import { BaseChartDirective } from 'ng2-charts';
 import { AnalyticsService, KeyMetrics } from '../../services/analytics.service';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { DecimalPipe } from '@angular/common'; // 1. Import DecimalPipe
-import jsPDF from 'jspdf'; // Importer jsPDF
-import html2canvas from 'html2canvas'; // Importer html2canvas
 
 @Component({
   selector: 'app-dashboard',
@@ -152,52 +150,50 @@ export class DashboardComponent implements OnInit {
 
   
 
-  exportToPDF() {
-    const data = document.getElementById('dashboard-content');
-    
-    if (data) {
-      html2canvas(data, { 
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#121212' // Giữ nền tối cho ảnh
-      }).then(canvas => {
-        const imgWidth = 210; // Khổ A4 chiều ngang
-        const pageHeight = 297; // Khổ A4 chiều dọc
-        const imgHeight = canvas.height * imgWidth / canvas.width;
-        
-        const contentDataURL = canvas.toDataURL('image/png');
-        
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        // --- 1. THÊM TIÊU ĐỀ VÀO PDF ---
-        const today = new Date();
-        const dateStr = today.toLocaleDateString('fr-FR'); // Ngày tháng kiểu Pháp
-        
-        // Tiêu đề chính
-        pdf.setFontSize(22);
-        pdf.setTextColor(40); // Màu xám đậm
-        pdf.text('Anime Analytics Report', 105, 20, { align: 'center' }); // x=105 là giữa trang A4
+  async exportToPDF() {
+  const data = document.getElementById('dashboard-content');
+  
+  if (data) {
+    // Import thư viện động (Lazy load)
+    const html2canvas = (await import('html2canvas')).default;
+    const jsPDF = (await import('jspdf')).default;
 
-        pdf.setFontSize(15);
-        pdf.setTextColor(40); // Màu xám đậm
-        pdf.text('Made by: Tri NGUYEN', 105, 27, { align: 'center' });
-        
-        // Ngày tháng
-        pdf.setFontSize(11);
-        pdf.setTextColor(100); // Màu xám nhạt hơn
-        pdf.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
+    html2canvas(data, { 
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#121212'
+    }).then(canvas => {
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      const contentDataURL = canvas.toDataURL('image/png');
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('fr-FR');
+      
+      pdf.setFontSize(22);
+      pdf.setTextColor(40);
+      pdf.text('Anime Analytics Report', 105, 20, { align: 'center' });
 
-        // --- 2. CHÈN ẢNH (Đã tính toán vị trí Y mới) ---
-        const imageY = 40; // Bắt đầu vẽ ảnh từ vị trí 40mm (chừa chỗ cho tiêu đề)
-        
-        pdf.addImage(contentDataURL, 'PNG', 0, imageY, imgWidth, imgHeight);
-        
-        // Lưu file
-        const fileNameDate = today.toISOString().split('T')[0];
-        pdf.save(`Anime_Dashboard_${fileNameDate}.pdf`);
-      });
-    }
+      pdf.setFontSize(15);
+      pdf.setTextColor(40);
+      pdf.text('Made by: Tri NGUYEN', 105, 27, { align: 'center' });
+      
+      pdf.setFontSize(11);
+      pdf.setTextColor(100);
+      pdf.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
+
+      const imageY = 40;
+      pdf.addImage(contentDataURL, 'PNG', 0, imageY, imgWidth, imgHeight);
+      
+      const fileNameDate = today.toISOString().split('T')[0];
+      pdf.save(`Anime_Dashboard_${fileNameDate}.pdf`);
+    });
   }
+}
 
   
 
