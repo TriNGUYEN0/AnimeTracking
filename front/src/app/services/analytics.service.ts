@@ -14,7 +14,7 @@ export interface KeyMetrics {
 })
 export class AnalyticsService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://animetracking-backend.onrender.com';
+  private apiUrl = 'https://animetracking.onrender.com/api/analytics';
 
   getGenreDistribution(year?: number): Observable<any> {
     let url = `${this.apiUrl}/genre-distribution`;

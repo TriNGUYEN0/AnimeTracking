@@ -20,7 +20,7 @@ export interface Anime {
 })
 export class AnimeService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://animetracking-backend.onrender.com';
+  private apiUrl = 'https://animetracking.onrender.com/api/anime/top';
 
   getTopAnime(): Observable<Anime[]> {
     return this.http.get<Anime[]>(this.apiUrl);
