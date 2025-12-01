@@ -150,35 +150,56 @@ export class DashboardComponent implements OnInit {
   public sourceChartData = signal<ChartData<'doughnut'>>({ labels: [], datasets: [] });
 
 
+  
+
   exportToPDF() {
     const data = document.getElementById('dashboard-content');
     
     if (data) {
-      // Capture du contenu HTML en image (canvas)
       html2canvas(data, { 
-        scale: 2, // Augmenter l'échelle pour une meilleure qualité
-        useCORS: true, // Pour gérer les images externes si nécessaire
-        backgroundColor: '#121212' // Force le fond sombre
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#121212' // Giữ nền tối cho ảnh
       }).then(canvas => {
-        const imgWidth = 208; // Largeur A4 en mm (environ)
-        const pageHeight = 295; // Hauteur A4 en mm
+        const imgWidth = 210; // Khổ A4 chiều ngang
+        const pageHeight = 297; // Khổ A4 chiều dọc
         const imgHeight = canvas.height * imgWidth / canvas.width;
         
         const contentDataURL = canvas.toDataURL('image/png');
         
-        // Création du PDF (orientation portrait, unité mm, format A4)
         const pdf = new jsPDF('p', 'mm', 'a4');
-        const position = 0;
         
-        // Ajouter l'image au PDF
-        pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+        // --- 1. THÊM TIÊU ĐỀ VÀO PDF ---
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('fr-FR'); // Ngày tháng kiểu Pháp
         
-        // Sauvegarder le fichier avec un nom dynamique incluant la date
-        const dateStr = new Date().toISOString().split('T')[0];
-        pdf.save(`Anime_Dashboard_${dateStr}.pdf`);
+        // Tiêu đề chính
+        pdf.setFontSize(22);
+        pdf.setTextColor(40); // Màu xám đậm
+        pdf.text('Rapport Analytique Anime', 105, 20, { align: 'center' }); // x=105 là giữa trang A4
+
+        pdf.setFontSize(15);
+        pdf.setTextColor(40); // Màu xám đậm
+        pdf.text('Made by: Tri NGUYEN', 105, 27, { align: 'center' });
+        
+        // Ngày tháng
+        pdf.setFontSize(11);
+        pdf.setTextColor(100); // Màu xám nhạt hơn
+        pdf.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
+
+        // --- 2. CHÈN ẢNH (Đã tính toán vị trí Y mới) ---
+        const imageY = 40; // Bắt đầu vẽ ảnh từ vị trí 40mm (chừa chỗ cho tiêu đề)
+        
+        pdf.addImage(contentDataURL, 'PNG', 0, imageY, imgWidth, imgHeight);
+        
+        // Lưu file
+        const fileNameDate = today.toISOString().split('T')[0];
+        pdf.save(`Anime_Dashboard_${fileNameDate}.pdf`);
       });
     }
   }
+
+  
 
   ngOnInit() {
     this.loadInitialData();

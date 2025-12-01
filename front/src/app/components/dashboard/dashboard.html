@@ -42,77 +42,87 @@
         </div>
       </div>
     }
-    <div class="chart-card">
-      <div class="card-header">
-        <h3>Distribution des Genres (Top 10)</h3>
-        
-        <div class="filter-controls">
-          <select (change)="onYearFilterChange($event)" class="year-select" data-html2canvas-ignore="true">
-            <option value="">Toutes les années</option>
-            @for (year of availableYears(); track year) {
-              <option [value]="year">{{ year }}</option>
-            }
-          </select>
+
+    <div class="charts-grid">
+      
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>Distribution des Genres (Top 10)</h3>
+          
+          <div class="filter-controls">
+            <select (change)="onYearFilterChange($event)" class="year-select">
+              <option value="">Toutes les années</option>
+              @for (year of availableYears(); track year) {
+                <option [value]="year">{{ year }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="chart-wrapper">
+          @if (genreChartData().datasets.length > 0 && genreChartData().datasets[0].data.length > 0) {
+            <canvas baseChart
+              [data]="genreChartData()"
+              [type]="'polarArea'" 
+              [options]="genreChartOptions">
+            </canvas>
+          } @else {
+            <p style="color: #888;">Chargement...</p>
+          }
         </div>
       </div>
-
-      <div class="chart-wrapper">
-        @if (genreChartData().datasets.length > 0 && genreChartData().datasets[0].data.length > 0) {
-          <canvas baseChart
-            [data]="genreChartData()"
-            [type]="'polarArea'" 
-            [options]="genreChartOptions">
-          </canvas>
-        } @else {
-          <p style="color: #888;">Chargement...</p>
-        }
-      </div>
-    </div>
 
       <div class="chart-card">
         <div class="card-header">
           <h3>Yearly scrore's evolution </h3>
         </div>
         <div class="chart-wrapper">
-          <canvas baseChart [data]="lineChartData()" [type]="'line'" [options]="lineChartOptions"></canvas>
+          <canvas baseChart 
+            [data]="lineChartData()" 
+            [type]="'line'" 
+            [options]="lineChartOptions">
+          </canvas>
         </div>
       </div>
 
       <div class="chart-card full-width">
-      <div class="card-header">
-        <h3>Top 10 Genres by Score</h3>
-      </div>
-      <div class="chart-wrapper scatter-wrapper"> <canvas baseChart
-          [data]="barChartData()"
-          [type]="'bar'"
-          [options]="barChartOptions">
-        </canvas>
+        <div class="card-header">
+          <h3>Top 10 Genres by Score</h3>
+        </div>
+        <div class="chart-wrapper scatter-wrapper"> 
+          <canvas baseChart
+            [data]="barChartData()"
+            [type]="'bar'"
+            [options]="barChartOptions">
+          </canvas>
+        </div>
       </div>
 
       <div class="chart-card">
-      <div class="card-header">
-        <h3>Studios with Top Animes</h3>
+        <div class="card-header">
+          <h3>Studios with Top Animes</h3>
+        </div>
+        <div class="chart-wrapper">
+          <canvas baseChart
+            [data]="studioChartData()"
+            [type]="'bar'"
+            [options]="studioChartOptions">
+          </canvas>
+        </div>
       </div>
-      <div class="chart-wrapper">
-        <canvas baseChart
-          [data]="studioChartData()"
-          [type]="'bar'"
-          [options]="studioChartOptions">
-        </canvas>
-      </div>
-    </div>
 
-    <div class="chart-card">
-      <div class="card-header">
-        <h3>Origine des Animes (Source)</h3>
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>Origine des Animes (Source)</h3>
+        </div>
+        <div class="chart-wrapper">
+          <canvas baseChart
+            [data]="sourceChartData()"
+            [type]="'doughnut'"
+            [options]="sourceChartOptions">
+          </canvas>
+        </div>
       </div>
-      <div class="chart-wrapper">
-        <canvas baseChart
-          [data]="sourceChartData()"
-          [type]="'doughnut'"
-          [options]="sourceChartOptions">
-        </canvas>
-      </div>
-    </div>
-  </div>
+      
+    </div> </div>
 </div>
