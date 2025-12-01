@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { AnalyticsService } from '../../services/analytics.service';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { KeyMetrics } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,6 +16,8 @@ export class DashboardComponent implements OnInit {
 
   // Danh sách các năm có dữ liệu để hiển thị trong bộ lọc
   availableYears = signal<number[]>([]);
+
+  keyMetrics = signal<KeyMetrics | null>(null);
 
   // --- SỬA LỖI Ở ĐÂY: Thêm <'pie'> vào ChartConfiguration ---
   public pieChartOptions: ChartConfiguration<'pie'>['options'] = {
@@ -95,6 +98,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadInitialData();
+    this.loadKeyMetrics();
   }
 
   loadInitialData() {
@@ -155,5 +159,11 @@ export class DashboardComponent implements OnInit {
     const value = select.value;
     const year = value ? Number(value) : undefined;
     this.loadGenreData(year);
+  }
+
+  loadKeyMetrics() {
+    this.analyticsService.getKeyMetrics().subscribe(data => {
+      this.keyMetrics.set(data);
+    });
   }
 }

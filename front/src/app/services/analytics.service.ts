@@ -2,6 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface KeyMetrics {
+  total_anime: number;
+  avg_score: number;
+  total_members: number;
+  active_years: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,6 +30,10 @@ export class AnalyticsService {
 
   getPopularityVsScore(): Observable<any> {
     return this.http.get(`${this.apiUrl}/popularity-vs-score`);
+  }
+
+  getKeyMetrics(): Observable<KeyMetrics> {
+    return this.http.get<KeyMetrics>(`${this.apiUrl}/key-metrics`);
   }
 
 }

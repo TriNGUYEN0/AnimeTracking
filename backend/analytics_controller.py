@@ -19,3 +19,8 @@ def get_score_by_year():
 def get_popularity_vs_score():
     data = service.get_popularity_vs_score()
     return jsonify(data)
+
+@analytics_bp.route('/key-metrics', methods=['GET'])
+def get_key_metrics():
+    data = service.get_key_metrics()
+    return jsonify(data)

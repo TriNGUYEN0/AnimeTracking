@@ -76,3 +76,21 @@ class AnalyticsService:
             })
             
         return data
+    
+    def get_key_metrics(self):
+        df = self._get_dataframe()
+        
+        if df.empty:
+            return {
+                "total_anime": 0,
+                "avg_score": 0,
+                "total_members": 0,
+                "active_years": 0
+            }
+
+        return {
+            "total_anime": int(df.shape[0]), # Tổng số dòng
+            "avg_score": round(df['score'].mean(), 2), # Điểm trung bình làm tròn 2 số
+            "total_members": int(df['members'].sum()), # Tổng số thành viên cộng lại
+            "active_years": int(df['year'].nunique()) # Số lượng năm duy nhất có trong danh sách
+        }
