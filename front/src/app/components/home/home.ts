@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { AnimeService, Anime } from '../../services/anime.service';
 import { AnimeCardComponent } from '../anime-card/anime-card';
-import { CommonModule } from '@angular/common'; // Import CommonModule pour ngClass, etc.
+import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -13,54 +14,61 @@ import { CommonModule } from '@angular/common'; // Import CommonModule pour ngCl
 export class HomeComponent implements OnInit {
   private animeService = inject(AnimeService);
   
-  // Dữ liệu gốc
   private fullList: Anime[] = [];
-  
-  // Signals cho giao diện
-  protected featuredAnime = signal<Anime | null>(null); // Anime cho banner chính
-  protected displayList = signal<Anime[]>([]); // Danh sách hiển thị bên dưới
+
+  // Signal trạng thái
+  isLoading = signal(true);
+  errorMessage = signal(''); // [NEW] Thêm signal lưu lỗi
+
+  protected featuredAnime = signal<Anime | null>(null);
+  protected displayList = signal<Anime[]>([]);
   protected currentIndex = signal(0);
   protected readonly itemsPerPage = 5;
 
-  // Mapping Mood -> Genre name (Dựa trên dữ liệu Jikan)
-   moods = [
+  moods = [
     { icon: '🔥', label: 'Action', genre: 'Action' },
     { icon: '😭', label: 'Emotional', genre: 'Drama' },
     { icon: '🤣', label: 'Funny', genre: 'Comedy' },
     { icon: '✨', label: 'Fantasy', genre: 'Fantasy' },
     { icon: '🚀', label: 'Sci-Fi', genre: 'Sci-Fi' },
-    { icon: '🔄', label: 'All', genre: 'All' } // Reset
+    { icon: '🔄', label: 'All', genre: 'All' }
   ];
   selectedMood = signal('All');
 
   ngOnInit() {
-    this.animeService.getTopAnime().subscribe({
-      next: (data) => {
-        // Trier par rang
-        const sortedData = data.sort((a, b) => a.rank - b.rank);
-        this.fullList = sortedData;
+    this.isLoading.set(true);
+    this.errorMessage.set(''); // Reset lỗi
 
-        // Prendre le premier anime pour la bannière héroïque
-        if (sortedData.length > 0) {
-          this.featuredAnime.set(sortedData[0]);
+    this.animeService.getTopAnime()
+      .pipe(
+        finalize(() => {
+          this.isLoading.set(false);
+        })
+      )
+      .subscribe({
+        next: (data) => {
+          const sortedData = data.sort((a, b) => a.rank - b.rank);
+          this.fullList = sortedData;
+          if (sortedData.length > 0) {
+            this.featuredAnime.set(sortedData[0]);
+          }
+          this.displayList.set(sortedData);
+        },
+        error: (err) => {
+          console.error('Erreur API:', err);
+          // [NEW] Hiển thị lỗi ra màn hình để biết chuyện gì xảy ra
+          this.errorMessage.set(`Erreur chargement API (${err.status}): ${err.statusText || 'Unknown Error'}`);
         }
-
-        // Afficher le reste dans la liste
-        this.displayList.set(sortedData);
-      },
-      error: (err) => console.error('Erreur:', err)
-    });
+      });
   }
 
-  // Filtrer la liste par humeur (Mood)
   filterByMood(moodGenre: string) {
     this.selectedMood.set(moodGenre);
-    this.currentIndex.set(0); // Reset slider về đầu
+    this.currentIndex.set(0); 
 
     if (moodGenre === 'All') {
       this.displayList.set(this.fullList);
     } else {
-      // Filtrer les animes qui contiennent le genre sélectionné
       const filtered = this.fullList.filter(anime => 
         anime.genres && anime.genres.includes(moodGenre)
       );

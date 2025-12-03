@@ -1,4 +1,20 @@
 <div class="home-container">
+
+  @if (isLoading()) {
+    <div class="server-loading-overlay">
+      <div class="loader"></div>
+      <p>Veuillez patienter 30s pour que le serveur démarre...</p>
+      <small>Server gratuit donc ça prend du temps lol</small>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-container">
+      <h3>⚠️ Oups!</h3>
+      <p>{{ errorMessage() }}</p>
+      <p>Vérifiez l'URL de l'API ou réessayez plus tard.</p>
+    </div>
+  }
   
   @if (featuredAnime(); as hero) {
     <div class="hero-section" [style.backgroundImage]="'url(' + (hero.large_image_url || hero.image_url) + ')'">      
@@ -12,7 +28,7 @@
             <span>{{ hero.episodes || '?' }} Episodes</span>
           </div>
           <p class="hero-synopsis">{{ hero.synopsis }}</p>
-          <button class="btn-watch">▶ Watch Now</button>
+          <button class="btn-watch">▶ More infos</button>
         </div>
       </div>
     </div>
