@@ -143,7 +143,6 @@ export class DashboardComponent implements OnInit {
 
 
   
-
 async exportToPDF() {
   const data = document.getElementById('dashboard-content');
   
@@ -155,25 +154,43 @@ async exportToPDF() {
       scale: 2,
       useCORS: true,
       backgroundColor: '#121212',
+      // CORRECTION 1: Réinitialiser le scroll pour éviter le décalage
       scrollY: -window.scrollY, 
       scrollX: 0,
       windowWidth: document.documentElement.offsetWidth,
       windowHeight: document.documentElement.offsetHeight
     }).then(canvas => {
-      // Configuration de la page A4 (210mm x 297mm)
-      const imgWidth = 210;
-      const pageHeight = 297;
+      // Dimensions de la page A4 en mm
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+      const headerHeight = 40; // Espace réservé pour l'en-tête
+
+      // Calculer la hauteur initiale basée sur la largeur de la page
+      let imgWidth = pdfWidth;
+      let imgHeight = (canvas.height * pdfWidth) / canvas.width;
       
-      const imgHeight = canvas.height * imgWidth / canvas.width;
+      // CORRECTION 2: Logique "Fit-to-Page" 
+      // Si l'image est trop longue pour l'espace restant, on la redimensionne
+      const availableHeight = pdfHeight - headerHeight; // ~257mm
       
+      if (imgHeight > availableHeight) {
+        // Forcer la hauteur à l'espace disponible
+        imgHeight = availableHeight;
+        // Recalculer la largeur pour garder le ratio (proportions)
+        imgWidth = (canvas.width * imgHeight) / canvas.height;
+      }
+
+      // Centrer l'image horizontalement si elle a été rétrécie
+      const xPos = (pdfWidth - imgWidth) / 2;
+      const yPos = headerHeight; // Commencer juste après l'en-tête
+
       const contentDataURL = canvas.toDataURL('image/png');
-      
       const pdf = new jsPDF('p', 'mm', 'a4');
       
       const today = new Date();
       const dateStr = today.toLocaleDateString('fr-FR');
       
-      // En-tête du rapport (Header)
+      // --- Header Section ---
       pdf.setFontSize(22);
       pdf.setTextColor(40);
       pdf.text('Anime Analytics Report', 105, 20, { align: 'center' });
@@ -186,17 +203,14 @@ async exportToPDF() {
       pdf.setTextColor(100);
       pdf.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
 
-      // Position verticale de l'image après l'en-tête
-      const imageY = 40;
-      pdf.addImage(contentDataURL, 'PNG', 0, imageY, imgWidth, imgHeight);
+      // --- Body Section ---
+      pdf.addImage(contentDataURL, 'PNG', xPos, yPos, imgWidth, imgHeight);
       
-      // Générer le nom du fichier avec la date
       const fileNameDate = today.toISOString().split('T')[0];
       pdf.save(`Anime_Dashboard_${fileNameDate}.pdf`);
     });
   }
 }
-
   
 
   ngOnInit() {
