@@ -2,14 +2,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { AnalyticsService, KeyMetrics } from '../../services/analytics.service';
 import { ChartConfiguration, ChartData } from 'chart.js';
-import { DecimalPipe } from '@angular/common'; // 1. Import DecimalPipe
+import { DecimalPipe } from '@angular/common'; 
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     BaseChartDirective, 
-    DecimalPipe // 2. Thêm vào imports để sử dụng được pipe '| number'
+    DecimalPipe
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
@@ -17,7 +17,6 @@ import { DecimalPipe } from '@angular/common'; // 1. Import DecimalPipe
 export class DashboardComponent implements OnInit {
   private analyticsService = inject(AnalyticsService);
 
-  // Danh sách các năm có dữ liệu để hiển thị trong bộ lọc
   availableYears = signal<number[]>([]);
 
   keyMetrics = signal<KeyMetrics | null>(null);
@@ -28,9 +27,9 @@ export class DashboardComponent implements OnInit {
     maintainAspectRatio: false,
     scales: {
       r: {
-        grid: { color: '#333' }, // Màu lưới tối
+        grid: { color: '#333' }, 
         ticks: { 
-          display: false, // Ẩn số trên trục bán kính cho gọn
+          display: false, 
           backdropColor: 'transparent' 
         }
       }
@@ -43,7 +42,6 @@ export class DashboardComponent implements OnInit {
     }
   };
 
-  // Đổi tên biến cho rõ nghĩa: pieChartData -> genreChartData
   public genreChartData = signal<ChartData<'polarArea'>>({ labels: [], datasets: [] });
   public pieChartData = signal<ChartData<'pie'>>({ 
     labels: [], 
@@ -75,7 +73,6 @@ export class DashboardComponent implements OnInit {
  public barChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    // indexAxis: 'y', // <-- XÓA DÒNG NÀY để trở về mặc định (Cột đứng)
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -85,18 +82,18 @@ export class DashboardComponent implements OnInit {
       }
     },
     scales: {
-      y: { // Trục Y bây giờ là Điểm số (Score)
+      y: { 
         beginAtZero: false,
-        min: 5, // Chỉnh min lên 6 để cột trông cao và rõ sự chênh lệch hơn
+        min: 5, 
         max: 10,
         grid: { color: '#333' },
         ticks: { color: '#b3b3b3' }
       },
-      x: { // Trục X bây giờ là Tên Thể loại
+      x: {
         ticks: { 
           color: '#e0e0e0', 
           font: { size: 11 },
-          maxRotation: 45, // Xoay chữ nghiêng nếu tên quá dài
+          maxRotation: 45, 
           minRotation: 45
         },
         grid: { display: false }
@@ -108,7 +105,7 @@ export class DashboardComponent implements OnInit {
   public studioChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    indexAxis: 'y', // Biểu đồ ngang để hiển thị tên Studio dài cho dễ đọc
+    indexAxis: 'y', 
     plugins: { legend: { display: false } },
     scales: {
       x: { grid: { color: '#333' }, ticks: { color: '#b3b3b3', stepSize: 1 } },
@@ -120,7 +117,7 @@ export class DashboardComponent implements OnInit {
   public sourceChartOptions: ChartConfiguration<'doughnut'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '50%', // Độ rỗng ở giữa (Vành khuyên)
+    cutout: '50%', 
     plugins: {
       legend: { 
         position: 'right', 
@@ -129,7 +126,6 @@ export class DashboardComponent implements OnInit {
       tooltip: {
         callbacks: {
           label: (context) => {
-            // Hiển thị thêm % cho dễ hình dung
             const label = context.label || '';
             const value = context.raw as number;
 
@@ -141,30 +137,33 @@ export class DashboardComponent implements OnInit {
         }
       }
     }
-    // Doughnut không cần scales
   };
   
-  // Lưu ý: Đổi type 'polarArea' thành 'doughnut'
   public sourceChartData = signal<ChartData<'doughnut'>>({ labels: [], datasets: [] });
 
 
   
 
-  async exportToPDF() {
+async exportToPDF() {
   const data = document.getElementById('dashboard-content');
   
   if (data) {
-    // Import thư viện động (Lazy load)
     const html2canvas = (await import('html2canvas')).default;
     const jsPDF = (await import('jspdf')).default;
 
     html2canvas(data, { 
       scale: 2,
       useCORS: true,
-      backgroundColor: '#121212'
+      backgroundColor: '#121212',
+      scrollY: -window.scrollY, 
+      scrollX: 0,
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight
     }).then(canvas => {
+      // Configuration de la page A4 (210mm x 297mm)
       const imgWidth = 210;
       const pageHeight = 297;
+      
       const imgHeight = canvas.height * imgWidth / canvas.width;
       
       const contentDataURL = canvas.toDataURL('image/png');
@@ -174,6 +173,7 @@ export class DashboardComponent implements OnInit {
       const today = new Date();
       const dateStr = today.toLocaleDateString('fr-FR');
       
+      // En-tête du rapport (Header)
       pdf.setFontSize(22);
       pdf.setTextColor(40);
       pdf.text('Anime Analytics Report', 105, 20, { align: 'center' });
@@ -186,9 +186,11 @@ export class DashboardComponent implements OnInit {
       pdf.setTextColor(100);
       pdf.text(`Generated on: ${dateStr}`, 105, 32, { align: 'center' });
 
+      // Position verticale de l'image après l'en-tête
       const imageY = 40;
       pdf.addImage(contentDataURL, 'PNG', 0, imageY, imgWidth, imgHeight);
       
+      // Générer le nom du fichier avec la date
       const fileNameDate = today.toISOString().split('T')[0];
       pdf.save(`Anime_Dashboard_${fileNameDate}.pdf`);
     });
@@ -235,7 +237,6 @@ export class DashboardComponent implements OnInit {
         labels: res.labels,
         datasets: [{
           data: res.data,
-          // Sử dụng bảng màu rực rỡ
           backgroundColor: [
             'rgba(255, 99, 132, 0.8)',
             'rgba(54, 162, 235, 0.8)',
@@ -249,7 +250,7 @@ export class DashboardComponent implements OnInit {
             'rgba(133, 193, 233, 0.8)'
           ],
           borderWidth: 1,
-          borderColor: '#1e1e1e' // Viền trùng màu nền để tạo khoảng cách đẹp
+          borderColor: '#1e1e1e' 
         }]
       });
     });
@@ -288,7 +289,7 @@ export class DashboardComponent implements OnInit {
         labels: res.labels,
         datasets: [{
           data: res.data,
-          backgroundColor: '#03dac6', // Màu xanh ngọc
+          backgroundColor: '#03dac6', 
           borderRadius: 4,
           barThickness: 15
         }]
@@ -303,12 +304,12 @@ export class DashboardComponent implements OnInit {
         datasets: [{
           data: res.data,
           backgroundColor: [
-            '#FF6384', // Manga (Màu nổi nhất)
+            '#FF6384', // Manga
             '#36A2EB', // Original
             '#FFCE56', // Light Novel
             '#4BC0C0', // Game
             '#9966FF', // Visual Novel
-            '#FF9F40', // Khác
+            '#FF9F40', // Other
             '#C9CBCF'
           ],
           hoverOffset: 10,
