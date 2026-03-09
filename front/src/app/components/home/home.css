@@ -10,7 +10,6 @@
   background-position: center;
   position: relative;
   margin-bottom: 40px;
-  /* Mask để làm mờ phần dưới ảnh hòa vào nền web */
   mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
@@ -55,16 +54,6 @@
   color: #ccc;
 }
 
-.hero-synopsis {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #ddd;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin-bottom: 25px;
-}
 
 .btn-watch {
   background: var(--accent-color);
@@ -140,7 +129,6 @@
   font-weight: bold;
 }
 
-/* --- CAROUSEL (Style lại một chút cho khớp layout mới) --- */
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -198,7 +186,6 @@
   font-style: italic;
 }
 
-/* ... (giữ nguyên các style cũ) ... */
 
 /* --- SERVER LOADING OVERLAY --- */
 .server-loading-overlay {

@@ -70,37 +70,7 @@ export class DashboardComponent implements OnInit {
   };
   public lineChartData = signal<ChartData<'line'>>({ labels: [], datasets: [{ data: [], label: 'Score average' }] });
 
- public barChartOptions: ChartConfiguration<'bar'>['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: (context) => ` Score moyen: ${context.raw}`
-        }
-      }
-    },
-    scales: {
-      y: { 
-        beginAtZero: false,
-        min: 5, 
-        max: 10,
-        grid: { color: '#333' },
-        ticks: { color: '#b3b3b3' }
-      },
-      x: {
-        ticks: { 
-          color: '#e0e0e0', 
-          font: { size: 11 },
-          maxRotation: 45, 
-          minRotation: 45
-        },
-        grid: { display: false }
-      }
-    }
-  };
-  public barChartData = signal<ChartData<'bar'>>({ labels: [], datasets: [] });
+
 
   public studioChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
@@ -242,7 +212,6 @@ async exportToPDF() {
     });
 
     this.loadGenreData();
-    this.loadTopGenresByScore();
   }
 
   loadGenreData(year?: number) {
@@ -270,32 +239,7 @@ async exportToPDF() {
     });
   }
 
-  loadTopGenresByScore() {
-    this.analyticsService.getTopGenresByScore().subscribe(res => {
-      const colors = [
-        '#FF6384', 
-        '#36A2EB', 
-        '#FFCE56', 
-        '#4BC0C0',
-        '#9966FF', 
-        '#FF9F40', 
-        '#E7E9ED',
-        '#76D7C4', 
-        '#F1948A', 
-        '#85C1E9'  
-      ];
-
-      this.barChartData.set({
-        labels: res.labels,
-        datasets: [{
-          data: res.data,
-          backgroundColor: colors, 
-          borderRadius: 10,
-          barThickness: 80
-        }]
-      });
-    });
-  }
+ 
 
   loadTopStudios() {
     this.analyticsService.getTopStudios().subscribe(res => {
