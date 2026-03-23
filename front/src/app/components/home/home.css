@@ -5,13 +5,26 @@
 
 /* --- HERO SECTION --- */
 .hero-section {
-  height: 500px;
+  height: 390px;
   background-size: cover;
   background-position: center;
   position: relative;
   margin-bottom: 40px;
   mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
+/* --- NOUVEAU : Style pour l'introduction du projet --- */
+.intro-projet {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #e0e0e0; /* Couleur grise claire pour ne pas voler la vedette au titre */
+  margin-top: 10px;
+  margin-bottom: 40px;
+  font-style: italic;
+  border-left: 3px solid var(--accent-color); /* Ligne décorative sur le côté gauche */
+  padding-left: 15px;
+  animation: slideIn 1s ease-out; /* Réutiliser l'animation existante avec un léger délai */
 }
 
 .hero-overlay {

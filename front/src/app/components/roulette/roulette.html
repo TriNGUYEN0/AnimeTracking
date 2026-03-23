@@ -1,19 +1,35 @@
 <div class="conteneur-roulette">
   <h2 class="titre">You don't know what to watch?</h2>
 
-  <div class="piste-carrousel" *ngIf="listeAnimes.length > 0; else ecranChargement">
-    <div 
-      *ngFor="let anime of listeAnimes; let i = index" 
-      class="carte-anime" 
-      [class.active]="i === indexActif"
-    >
-      <img [src]="anime.image_url" [alt]="anime.title">
-      
-      <div class="info-carte" *ngIf="i === indexActif">
-        <h3>{{ anime.title }}</h3>
-        <p>⭐ {{ anime.score }}</p>
+  <div *ngIf="listeAnimes.length > 0; else ecranChargement">
+    
+    <div class="fenetre-carrousel" *ngIf="!resultatAffiche">
+      <div class="piste-carrousel" [style.transform]="decalagePiste">
+        <div 
+          *ngFor="let anime of listeAnimes; let i = index" 
+          class="carte-anime" 
+          [class.active]="i === indexActif"
+        >
+          <img [src]="anime.image_url" [alt]="anime.title">
+        </div>
       </div>
     </div>
+
+    <div class="resultat-final" *ngIf="resultatAffiche && animeGagnant">
+      <div class="resultat-gauche">
+        <img [src]="animeGagnant.large_image_url || animeGagnant.image_url" [alt]="animeGagnant.title" class="image-gagnant">
+      </div>
+      
+      <div class="resultat-droite">
+        <h3>{{ animeGagnant.title }}</h3>
+        <div class="tags">
+          <span class="score">⭐ {{ animeGagnant.score || 'N/A' }}</span>
+          <span class="annee">📅 {{ animeGagnant.year || 'N/A' }}</span>
+        </div>
+        <p class="synopsis">{{ animeGagnant.synopsis || 'No description available.' }}</p>
+      </div>
+    </div>
+
   </div>
 
   <ng-template #ecranChargement>

@@ -1,40 +1,48 @@
+/* --- Conteneur principal --- */
 .conteneur-roulette {
   text-align: center;
   padding: 2rem;
   overflow: hidden;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .titre {
   color: #ffffff;
-  margin-bottom: 2rem;
+  font-style: italic;
+  margin-bottom: 20px;
 }
 
-.texte-chargement {
-  font-style: italic;
-  color: #7f8c8d;
+/* --- PHASE 1 : Roulette --- */
+.fenetre-carrousel {
+  width: 100%;
+  overflow: hidden; /* Cacher les cartes qui débordent à gauche/droite */
+  position: relative;
+  height: 300px;
+  display: flex;
+  align-items: center;
 }
 
 .piste-carrousel {
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 15px;
-  height: 350px;
+  width: max-content;
+  transition: transform 0.1s linear; /* Animation de glissement fluide */
 }
 
-/* Cartes inactives (sur les côtés) */
 .carte-anime {
   width: 140px;
   height: 200px;
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease-in-out;
-  
   filter: grayscale(100%);
   opacity: 0.4;
   transform: scale(0.8);
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  position: relative;
+  flex-shrink: 0; /* Empêcher la carte de rétrécir */
 }
 
 .carte-anime img {
@@ -43,7 +51,6 @@
   object-fit: cover;
 }
 
-/* Carte active (au centre) */
 .carte-anime.active {
   filter: grayscale(0%);
   opacity: 1;
@@ -52,30 +59,70 @@
   z-index: 10;
 }
 
-.info-carte {
-  position: absolute;
-  bottom: 0;
+/* --- PHASE 2 : Résultat Final --- */
+.resultat-final {
+  display: flex;
+  gap: 30px;
+  text-align: left;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  animation: apparaitre 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Effet de zoom dynamique */
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@keyframes apparaitre {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.resultat-gauche {
+  flex: 0 0 220px;
+}
+
+.image-gagnant {
   width: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 8px 5px;
-  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
-.info-carte h3 {
-  margin: 0;
-  font-size: 0.9rem;
-  white-space: nowrap;
+.resultat-droite {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.resultat-droite h3 {
+  font-size: 1.8rem;
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.tags {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.score { color: #f39c12; }
+.annee { color: #3498db; }
+
+.synopsis {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #555;
+  display: -webkit-box;
+  -webkit-line-clamp: 7; /* Couper le texte après 7 lignes */
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.info-carte p {
-  margin: 5px 0 0;
-  font-size: 0.8rem;
-  color: #f1c40f;
-}
-
+/* --- BOUTON --- */
 .btn-tourner {
   margin-top: 2rem;
   padding: 12px 30px;
@@ -89,11 +136,5 @@
   transition: background-color 0.2s;
 }
 
-.btn-tourner:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.btn-tourner:hover:not(:disabled) {
-  background-color: #c0392b;
-}
+.btn-tourner:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+.btn-tourner:hover:not(:disabled) { background-color: #c0392b; }
