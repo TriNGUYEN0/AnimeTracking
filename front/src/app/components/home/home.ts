@@ -3,11 +3,12 @@ import { AnimeService, Anime } from '../../services/anime.service';
 import { AnimeCardComponent } from '../anime-card/anime-card';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs/operators';
+import { RouletteComponent } from '../roulette/roulette';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AnimeCardComponent, CommonModule],
+  imports: [AnimeCardComponent, CommonModule, RouletteComponent],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })

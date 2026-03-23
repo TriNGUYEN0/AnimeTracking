@@ -1,0 +1,99 @@
+.conteneur-roulette {
+  text-align: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.titre {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+}
+
+.texte-chargement {
+  font-style: italic;
+  color: #7f8c8d;
+}
+
+.piste-carrousel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  height: 350px;
+}
+
+/* Cartes inactives (sur les côtés) */
+.carte-anime {
+  width: 140px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  
+  filter: grayscale(100%);
+  opacity: 0.4;
+  transform: scale(0.8);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.carte-anime img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Carte active (au centre) */
+.carte-anime.active {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.2);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  z-index: 10;
+}
+
+.info-carte {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 5px;
+  text-align: center;
+}
+
+.info-carte h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-carte p {
+  margin: 5px 0 0;
+  font-size: 0.8rem;
+  color: #f1c40f;
+}
+
+.btn-tourner {
+  margin-top: 2rem;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-tourner:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.btn-tourner:hover:not(:disabled) {
+  background-color: #c0392b;
+}

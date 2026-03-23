@@ -1,0 +1,30 @@
+<div class="conteneur-roulette">
+  <h2 class="titre">You don't know what to watch?</h2>
+
+  <div class="piste-carrousel" *ngIf="listeAnimes.length > 0; else ecranChargement">
+    <div 
+      *ngFor="let anime of listeAnimes; let i = index" 
+      class="carte-anime" 
+      [class.active]="i === indexActif"
+    >
+      <img [src]="anime.image_url" [alt]="anime.title">
+      
+      <div class="info-carte" *ngIf="i === indexActif">
+        <h3>{{ anime.title }}</h3>
+        <p>⭐ {{ anime.score }}</p>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #ecranChargement>
+    <p class="texte-chargement">Loading recommendations...</p>
+  </ng-template>
+
+  <button 
+    class="btn-tourner" 
+    (click)="tournerRoulette()" 
+    [disabled]="enRotation || listeAnimes.length === 0"
+  >
+    {{ enRotation ? 'Selecting...' : 'Spin the wheel' }}
+  </button>
+</div>
