@@ -10,3 +10,9 @@ def get_top_anime():
     # Appel au service pour récupérer les données
     data = service.get_top_anime()
     return jsonify(data)
+
+@anime_bp.route('/hasard', methods=['GET'])
+def get_random_anime():
+    # Appel au service pour récupérer un anime aléatoire
+    data = service.get_random_anime()
+    return jsonify(data)

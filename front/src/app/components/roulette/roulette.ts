@@ -10,47 +10,64 @@ import { AnimeService, Anime } from '../../services/anime.service';
   styleUrls: ['./roulette.css']
 })
 export class RouletteComponent implements OnInit {
-  // Injection du service API
   private serviceAnime = inject(AnimeService);
 
-  // Tableau pour stocker les données de l'API
   listeAnimes: Anime[] = [];
   indexActif: number = 0;
   enRotation: boolean = false;
+  
+  // Variable pour stocker la réponse de l'API
+  animeGagnant: Anime | null = null; 
 
   ngOnInit(): void {
-    // Récupérer les vraies données depuis le serveur
+    // Charger la liste initiale pour créer l'effet visuel de la roulette
     this.serviceAnime.getTopAnime().subscribe({
       next: (donnees) => {
-        // Garder seulement les 15 premiers animes pour la roulette
         this.listeAnimes = donnees.slice(0, 15);
       },
-      error: (erreur) => {
-        console.error("Erreur lors du chargement des animes", erreur);
-      }
+      error: (erreur) => console.error("Erreur API:", erreur)
     });
   }
 
-  // Fonction pour animer la sélection aléatoire
   tournerRoulette(): void {
     if (this.enRotation || this.listeAnimes.length === 0) return;
 
     this.enRotation = true;
+    this.animeGagnant = null; // Réinitialiser le résultat précédent
     let tours = 0;
-    const maxTours = 30; // Nombre de sauts avant l'arrêt
+    const maxTours = 30; // Nombre minimum de sauts
 
+    // Lancer la requête API en arrière-plan (Appel asynchrone)
+    this.serviceAnime.obtenirAnimeAleatoire().subscribe({
+      next: (anime) => {
+        this.animeGagnant = anime; // Stocker le résultat quand il arrive
+      },
+      error: (erreur) => {
+        console.error("Échec de la récupération aléatoire", erreur);
+        // Solution de secours : choisir un anime dans la liste existante
+        this.animeGagnant = this.listeAnimes[Math.floor(Math.random() * this.listeAnimes.length)];
+      }
+    });
+
+    // Lancer l'animation visuelle
     const intervalle = setInterval(() => {
-      // Passer à la carte suivante en boucle
       this.indexActif = (this.indexActif + 1) % this.listeAnimes.length;
       tours++;
 
-      // Arrêter la roulette après maxTours
-      if (tours >= maxTours) {
+      // Condition d'arrêt : On a fait assez de tours ET l'API a répondu
+      if (tours >= maxTours && this.animeGagnant) {
         clearInterval(intervalle);
-        // Sélectionner le gagnant final au hasard
-        this.indexActif = Math.floor(Math.random() * this.listeAnimes.length);
+        
+        // L'astuce : Remplacer la carte actuelle par le vrai gagnant
+        this.listeAnimes[this.indexActif] = this.animeGagnant;
+        
+        this.enRotation = false;
+      } 
+      // Sécurité : Si l'API est trop lente (timeout serveur), arrêter au bout de 60 tours
+      else if (tours > 60) {
+        clearInterval(intervalle);
         this.enRotation = false;
       }
-    }, 100); // Vitesse de rotation (100 millisecondes)
+    }, 100);
   }
 }

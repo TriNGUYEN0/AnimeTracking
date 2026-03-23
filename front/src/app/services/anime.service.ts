@@ -21,8 +21,13 @@ export interface Anime {
 export class AnimeService {
   private http = inject(HttpClient);
   private apiUrl = 'https://animetracking.onrender.com/api/anime/top';
+  private urlHasardApi = 'https://animetracking.onrender.com/api/anime/hasard';
 
   getTopAnime(): Observable<Anime[]> {
     return this.http.get<Anime[]>(this.apiUrl);
+  }
+
+  obtenirAnimeAleatoire(): Observable<Anime> {
+    return this.http.get<Anime>(this.urlHasardApi);
   }
 }
