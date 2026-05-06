@@ -1,0 +1,82 @@
+.graphe-layout {
+  display: flex;
+  height: calc(100vh - 70px);
+  background-color: var(--bg-color);
+  position: relative;
+}
+
+.panneau-filtres {
+  width: 300px;
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.panneau-filtres select {
+  padding: 10px;
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 5px;
+}
+
+.zone-graphe {
+  flex: 1;
+  position: relative;
+}
+
+.echarts-conteneur {
+  width: 100%;
+  height: 100%;
+}
+
+.modale-details {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  background-color: #1e1e1ebd;
+  backdrop-filter: blur(10px);
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 20px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.modale-details img {
+  width: 100%;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.bouton-fermer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--accent-color);
+  border: none;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+}
+
+.badge {
+  background-color: #333;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  margin-right: 5px;
+  display: inline-block;
+  margin-bottom: 5px;
+  color: var(--accent-color);
+}
