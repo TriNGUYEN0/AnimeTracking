@@ -1,35 +1,81 @@
 <div class="graphe-layout">
   
   <div class="panneau-filtres">
-    <h2>Explorateur d'Animes</h2>
-    
-    <label>Studio de production</label>
-    <select [(ngModel)]="filtreStudio" (change)="appliquerFiltres()">
-      <option value="Tous">Tous les studios</option>
-      <option *ngFor="let s of studios" [value]="s">{{ s }}</option>
-    </select>
+    <h2>Explorateur</h2>
 
-    <label>Année de sortie</label>
-    <select [(ngModel)]="filtreAnnee" (change)="appliquerFiltres()">
-      <option value="Toutes">Toutes les années</option>
-      <option *ngFor="let a of annees" [value]="a">{{ a }}</option>
-    </select>
+    <div class="groupe-controle">
+      <label>Recherche par titre</label>
+      <input type="text" placeholder="Ex: Naruto..." [(ngModel)]="termeRecherche" (keyup)="appliquerFiltres()">
+    </div>
+    
+    <div class="groupe-controle">
+      <label>Limite de nœuds : {{ limiteNoeuds }}</label>
+      <input type="range" min="10" max="1000" step="10" [(ngModel)]="limiteNoeuds" (change)="appliquerFiltres()">
+    </div>
+
+    <div class="groupe-controle">
+      <label>Studio de production</label>
+      <select [(ngModel)]="filtreStudio" (change)="appliquerFiltres()">
+        <option value="Tous">Tous</option>
+        @for (s of studiosDisponibles; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="groupe-controle">
+      <label>Année de sortie</label>
+      <select [(ngModel)]="filtreAnnee" (change)="appliquerFiltres()">
+        <option value="Toutes">Toutes</option>
+        @for (a of anneesDisponibles; track a) {
+          <option [value]="a">{{ a }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="groupe-controle">
+      <label>Genres</label>
+      <select [(ngModel)]="filtreGenre" (change)="appliquerFiltres()">
+        <option value="Tous">Tous</option>
+        @for (g of genresDisponibles; track g) {
+          <option [value]="g">{{ g }}</option>
+        }
+      </select>
+    </div>
   </div>
 
   <div class="zone-graphe">
     <div #conteneurGraphe class="echarts-conteneur"></div>
   </div>
 
-  <div class="modale-details" *ngIf="animeSelectionne">
-    <button class="bouton-fermer" (click)="fermerDetails()">X</button>
-    <img [src]="animeSelectionne.large_image_url || animeSelectionne.image_url" [alt]="animeSelectionne.titre" />
-    <h3>{{ animeSelectionne.titre }}</h3>
-    <p class="score">Score: {{ animeSelectionne.score }}</p>
-    <p class="annee">Année: {{ animeSelectionne.annee }}</p>
-    <div class="genres">
-      <span *ngFor="let genre of animeSelectionne.genres" class="badge">{{ genre }}</span>
+  @if (animeSelectionne) {
+    <div class="modale-details">
+      <button class="bouton-fermer" (click)="fermerDetails()">X</button>
+      
+      <img [src]="animeSelectionne.large_image_url || animeSelectionne.image_url" [alt]="animeSelectionne.titre" />
+      
+      <h3>{{ animeSelectionne.titre }}</h3>
+      
+      <div class="info-meta">
+        <span class="score">⭐ {{ animeSelectionne.score || 'N/A' }}</span>
+        <span class="annee">📅 {{ animeSelectionne.annee || 'N/A' }}</span>
+        <span class="episodes">📺 {{ animeSelectionne.episodes || '?' }} EPS</span>
+      </div>
+
+      <div class="genres">
+        @for (genre of animeSelectionne.genres; track genre) {
+          <span class="badge">{{ genre }}</span>
+        }
+      </div>
+      
+      @if (animeSelectionne.studios && animeSelectionne.studios.length > 0) {
+        <div class="studios">
+          <strong>Studios : </strong> {{ animeSelectionne.studios.join(', ') }}
+        </div>
+      }
+
+      <p class="synopsis">{{ animeSelectionne.synopsis }}</p>
     </div>
-    <p class="synopsis">{{ animeSelectionne.synopsis }}</p>
-  </div>
+  }
 
 </div>
