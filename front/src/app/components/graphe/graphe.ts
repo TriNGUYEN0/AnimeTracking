@@ -40,7 +40,7 @@ export class GrapheComponent implements OnInit {
   filtreGenre: string = 'Tous';
   
   termeRecherche: string = '';
-  limiteNoeuds: number = 200;
+  limiteNoeuds: number = 50;
   animeSelectionne: AnimeGraphe | null = null;
 
   ngOnInit(): void {
