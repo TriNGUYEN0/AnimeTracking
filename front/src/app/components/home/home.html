@@ -1,36 +1,36 @@
 <div class="home-container">
 
-  @if (isLoading()) {
+  @if (chargementEnCours()) {
     <div class="server-loading-overlay">
       <div class="loader"></div>
-      <p>Sometimes it's too slow. For sure 😎</p>
-      <small>Server gratuit donc ça prend du temps lol</small>
+      <p>Chargement des données...</p>
+      <small>Lecture en cours...</small>
     </div>
   }
 
-  @if (errorMessage()) {
+  @if (messageErreur()) {
     <div class="error-container">
       <h3>⚠️ Oups!</h3>
-      <p>{{ errorMessage() }}</p>
-      <p>Vérifiez l'URL de l'API ou réessayez plus tard.</p>
+      <p>{{ messageErreur() }}</p>
+      <p>Vérifiez que le fichier animes_graphe.json est bien présent dans le dossier assets.</p>
     </div>
   }
   
-  @if (featuredAnime(); as hero) {
+  @if (animeEnVedette(); as hero) {
     <div class="hero-section" [style.backgroundImage]="'url(' + (hero.large_image_url || hero.image_url) + ')'">      
       <div class="hero-overlay">
         <div class="hero-content">
           <p class="intro-projet">
-            Personal project using API Jinkan to display anime trend and anime stats
-            Last update: 10 May 2026
+            Projet personnel utilisant des données locales pour afficher les tendances et statistiques des animes. <br>
+            Dernière mise à jour : 10 Mai 2026
           </p>
 
-          <span class="hero-rank">#1 Trending</span>
+          <span class="hero-rank">#1 Tendance</span>
           <h1>{{ hero.title }}</h1>
           <div class="hero-meta">
             <span class="score">⭐ {{ hero.score }}</span>
             <span>{{ hero.year || 'N/A' }}</span>
-            <span>{{ hero.episodes || '?' }} Episodes</span>
+            <span>{{ hero.episodes || '?' }} Épisodes</span>
           </div>
         </div>
       </div>
@@ -39,14 +39,14 @@
 
   <div class="content-container">
     <div class="mood-section">
-      <h3>What's your mood today?</h3>
+      <h3>Quelle est votre humeur aujourd'hui ?</h3>
       <div class="mood-buttons">
-        @for (mood of moods; track mood.label) {
+        @for (humeur of humeurs; track humeur.label) {
           <button 
-            [class.active]="selectedMood() === mood.genre"
-            (click)="filterByMood(mood.genre)">
-            <span class="mood-icon">{{ mood.icon }}</span>
-            {{ mood.label }}
+            [class.active]="humeurSelectionnee() === humeur.genre"
+            (click)="filtrerParHumeur(humeur.genre)">
+            <span class="mood-icon">{{ humeur.icon }}</span>
+            {{ humeur.label }}
           </button>
         }
       </div>
@@ -55,27 +55,27 @@
     <div class="carousel-section">
       <div class="section-header">
         <h2>
-          @if(selectedMood() === 'All') { Top Anime } 
-          @else { Top {{ selectedMood() }} }
+          @if(humeurSelectionnee() === 'All') { Top Animes } 
+          @else { Top {{ humeurSelectionnee() }} }
         </h2>
         <div class="nav-controls">
-          <button class="nav-btn" (click)="prevSlide()" [disabled]="currentIndex() === 0">❮</button>
-          <button class="nav-btn" (click)="nextSlide()" [disabled]="currentIndex() >= displayList().length - itemsPerPage">❯</button>
+          <button class="nav-btn" (click)="diapositivePrecedente()" [disabled]="indexActuel() === 0">❮</button>
+          <button class="nav-btn" (click)="diapositiveSuivante()" [disabled]="indexActuel() >= listeAffichage().length - elementsParPage">❯</button>
         </div>
       </div>
       
       <div class="carousel-window">
         <div class="carousel-track" 
-             [style.transform]="'translateX(-' + (currentIndex() * (100 / itemsPerPage)) + '%)'">
+             [style.transform]="'translateX(-' + (indexActuel() * (100 / elementsParPage)) + '%)'">
           
-          @for (anime of displayList(); track anime.rank) {
-            <div class="carousel-item" [style.flex-basis.%]="100 / itemsPerPage">
+          @for (anime of listeAffichage(); track anime.rank) {
+            <div class="carousel-item" [style.flex-basis.%]="100 / elementsParPage">
               <app-anime-card [anime]="anime" />
             </div>
           }
           
-          @if (displayList().length === 0) {
-            <div class="empty-state">No anime found for this mood 😔</div>
+          @if (listeAffichage().length === 0) {
+            <div class="empty-state">Aucun anime trouvé pour cette humeur 😔</div>
           }
 
         </div>

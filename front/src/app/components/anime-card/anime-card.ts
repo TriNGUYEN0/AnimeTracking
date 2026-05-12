@@ -8,6 +8,6 @@ import { Anime } from '../../services/anime.service';
   styleUrl: './anime-card.css'
 })
 export class AnimeCardComponent {
-  // Propriété d'entrée requise
+  /* Propriete d'entree requise transmise par le parent (HomeComponent) */
   @Input({ required: true }) anime!: Anime;
 }

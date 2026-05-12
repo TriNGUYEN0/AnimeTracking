@@ -4,14 +4,14 @@
   <div class="image-container">
     <img [src]="anime.image_url" [alt]="anime.title" loading="lazy" />
     <div class="overlay">
-      <p class="synopsis">{{ anime.synopsis }}</p>
+      <p class="synopsis">{{ anime.synopsis || 'Aucun synopsis disponible.' }}</p>
     </div>
   </div>
 
   <div class="info">
     <div class="header">
-      <h3 [title]="anime.title">{{ anime.title }}</h3>
-      <span class="score">⭐ {{ anime.score }}</span>
+      <h3 [title]="anime.title">{{ anime.title || 'Titre inconnu' }}</h3>
+      <span class="score">⭐ {{ anime.score || 0 }}</span>
     </div>
     
     <div class="meta">
@@ -20,8 +20,12 @@
     </div>
 
     <div class="genres">
-      @for (genre of anime.genres.slice(0, 3); track $index) {
-        <span class="badge">{{ genre }}</span>
+      @if (anime.genres && anime.genres.length > 0) {
+        @for (genre of anime.genres.slice(0, 3); track $index) {
+          <span class="badge">{{ genre }}</span>
+        }
+      } @else {
+        <span class="badge">Inconnu</span>
       }
     </div>
   </div>

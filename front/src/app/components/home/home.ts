@@ -13,79 +13,78 @@ import { RouletteComponent } from '../roulette/roulette';
   styleUrl: './home.css'
 })
 export class HomeComponent implements OnInit {
-  private animeService = inject(AnimeService);
+  private serviceAnime = inject(AnimeService);
   
-  private fullList: Anime[] = [];
+  private listeComplete: Anime[] = [];
 
-  // Signal trạng thái
-  isLoading = signal(true);
-  errorMessage = signal(''); // [NEW] Thêm signal lưu lỗi
+  /* Signaux pour la gestion de l'etat de la page */
+  chargementEnCours = signal(true);
+  messageErreur = signal(''); 
 
-  protected featuredAnime = signal<Anime | null>(null);
-  protected displayList = signal<Anime[]>([]);
-  protected currentIndex = signal(0);
-  protected readonly itemsPerPage = 5;
+  animeEnVedette = signal<Anime | null>(null);
+  listeAffichage = signal<Anime[]>([]);
+  indexActuel = signal(0);
+  readonly elementsParPage = 5;
 
-  moods = [
+  humeurs = [
     { icon: '🔥', label: 'Action', genre: 'Action' },
-    { icon: '😭', label: 'Emotional', genre: 'Drama' },
-    { icon: '🤣', label: 'Funny', genre: 'Comedy' },
-    { icon: '✨', label: 'Fantasy', genre: 'Fantasy' },
+    { icon: '😭', label: 'Émotionnel', genre: 'Drama' },
+    { icon: '🤣', label: 'Drôle', genre: 'Comedy' },
+    { icon: '✨', label: 'Fantaisie', genre: 'Fantasy' },
     { icon: '🚀', label: 'Sci-Fi', genre: 'Sci-Fi' },
-    { icon: '🔄', label: 'All', genre: 'All' }
+    { icon: '🔄', label: 'Tout', genre: 'All' }
   ];
-  selectedMood = signal('All');
+  humeurSelectionnee = signal('All');
 
   ngOnInit() {
-    this.isLoading.set(true);
-    this.errorMessage.set(''); // Reset lỗi
+    this.chargementEnCours.set(true);
+    this.messageErreur.set(''); 
 
-    this.animeService.getTopAnime()
+    this.serviceAnime.getTopAnime()
       .pipe(
         finalize(() => {
-          this.isLoading.set(false);
+          this.chargementEnCours.set(false);
         })
       )
       .subscribe({
-        next: (data) => {
-          const sortedData = data.sort((a, b) => a.rank - b.rank);
-          this.fullList = sortedData;
-          if (sortedData.length > 0) {
-            this.featuredAnime.set(sortedData[0]);
+        next: (donnees) => {
+          const donneesTriees = donnees.sort((a, b) => a.rank - b.rank);
+          this.listeComplete = donneesTriees;
+          if (donneesTriees.length > 0) {
+            this.animeEnVedette.set(donneesTriees[0]);
           }
-          this.displayList.set(sortedData);
+          this.listeAffichage.set(donneesTriees);
         },
-        error: (err) => {
-          console.error('Erreur API:', err);
-          // [NEW] Hiển thị lỗi ra màn hình để biết chuyện gì xảy ra
-          this.errorMessage.set(`Erreur chargement API (${err.status}): ${err.statusText || 'Unknown Error'}`);
+        error: (erreur) => {
+          console.error('Erreur de lecture du fichier local:', erreur);
+          this.messageErreur.set(`Impossible de charger le fichier JSON local.`);
         }
       });
   }
 
-  filterByMood(moodGenre: string) {
-    this.selectedMood.set(moodGenre);
-    this.currentIndex.set(0); 
+  filtrerParHumeur(genreHumeur: string) {
+    this.humeurSelectionnee.set(genreHumeur);
+    this.indexActuel.set(0); 
 
-    if (moodGenre === 'All') {
-      this.displayList.set(this.fullList);
+    if (genreHumeur === 'All') {
+      this.listeAffichage.set(this.listeComplete);
     } else {
-      const filtered = this.fullList.filter(anime => 
-        anime.genres && anime.genres.includes(moodGenre)
+      const filtres = this.listeComplete.filter(anime => 
+        anime.genres && anime.genres.includes(genreHumeur)
       );
-      this.displayList.set(filtered);
+      this.listeAffichage.set(filtres);
     }
   }
 
-  nextSlide() {
-    if (this.currentIndex() < this.displayList().length - this.itemsPerPage) {
-      this.currentIndex.update(v => v + 1);
+  diapositiveSuivante() {
+    if (this.indexActuel() < this.listeAffichage().length - this.elementsParPage) {
+      this.indexActuel.update(v => v + 1);
     }
   }
 
-  prevSlide() {
-    if (this.currentIndex() > 0) {
-      this.currentIndex.update(v => v - 1);
+  diapositivePrecedente() {
+    if (this.indexActuel() > 0) {
+      this.indexActuel.update(v => v - 1);
     }
   }
 }
