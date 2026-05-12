@@ -145,8 +145,42 @@ return {
         });
 
         return {
-          etiquettes: ['1-13 eps', '14-26 eps', '27+ eps', 'Inconnu'],
+          etiquettes: ['1-13 eps', '14-26 eps', '27+ eps', 'Unknown'],
           valeurs: [courts, moyens, longs, inconnus]
+        };
+      })
+    );
+  }
+
+  // Add this method to your AnalyticsService class
+  getTopGenresByScore(): Observable<any> {
+    return this.donneesBrutes$.pipe(
+      map(data => {
+        const genreStats: Record<string, { totalScore: number, count: number }> = {};
+        
+        data.forEach((anime: any) => {
+          if (anime.genres && anime.score) {
+            anime.genres.forEach((g: string) => {
+              if (!genreStats[g]) genreStats[g] = { totalScore: 0, count: 0 };
+              genreStats[g].totalScore += anime.score;
+              genreStats[g].count += 1;
+            });
+          }
+        });
+
+        // Filter genres with at least 5 animes to ensure statistical relevance
+        const topGenres = Object.entries(genreStats)
+          .filter(([_, stats]) => stats.count >= 5) 
+          .map(([genre, stats]) => ({
+            genre,
+            avg: Number((stats.totalScore / stats.count).toFixed(2))
+          }))
+          .sort((a, b) => b.avg - a.avg)
+          .slice(0, 10);
+
+        return {
+          labels: topGenres.map(i => i.genre),
+          data: topGenres.map(i => i.avg)
         };
       })
     );

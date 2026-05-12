@@ -7,18 +7,17 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  // DecimalPipe conservé car utilisé dans le template : {{ ... | number }}
   imports: [BaseChartDirective, DecimalPipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent implements OnInit {
-  private serviceAnalytique = inject(AnalyticsService);
+  private analyticsService = inject(AnalyticsService);
 
-  metriquesCles = signal<MetriquesCles | null>(null);
+  keyMetrics = signal<MetriquesCles | null>(null);
 
-  // ── Graphe Ligne ──────────────────────────────────────────────────────────
-  public configGrapheLigne: ChartConfiguration<'line'>['options'] = {
+  // ── Chart Configurations ──────────────────────────────────────────────────
+  public lineChartConfig: ChartConfiguration<'line'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     elements: { line: { tension: 0.4 } },
@@ -28,19 +27,17 @@ export class DashboardComponent implements OnInit {
       x: { ticks: { color: '#b3b3b3' }, grid: { color: '#333' } }
     }
   };
-  public donneesGrapheLigne = signal<ChartData<'line'>>({ labels: [], datasets: [] });
+  public lineChartData = signal<ChartData<'line'>>({ labels: [], datasets: [] });
 
-  // ── Graphe Polaire ────────────────────────────────────────────────────────
-  public configGraphePolaire: ChartConfiguration<'polarArea'>['options'] = {
+  public polarChartConfig: ChartConfiguration<'polarArea'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     scales: { r: { grid: { color: '#333' }, ticks: { display: false } } },
     plugins: { legend: { position: 'right', labels: { color: '#e0e0e0' } } }
   };
-  public donneesGraphePolaire = signal<ChartData<'polarArea'>>({ labels: [], datasets: [] });
+  public polarChartData = signal<ChartData<'polarArea'>>({ labels: [], datasets: [] });
 
-  // ── Graphe Barres ─────────────────────────────────────────────────────────
-  public configGrapheBarres: ChartConfiguration<'bar'>['options'] = {
+  public barChartConfig: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     indexAxis: 'y',
@@ -50,47 +47,60 @@ export class DashboardComponent implements OnInit {
       y: { grid: { display: false }, ticks: { color: '#e0e0e0' } }
     }
   };
-  public donneesGrapheBarres = signal<ChartData<'bar'>>({ labels: [], datasets: [] });
+  public barChartData = signal<ChartData<'bar'>>({ labels: [], datasets: [] });
 
-  // ── Graphe Anneau ─────────────────────────────────────────────────────────
-  public configGrapheAnneau: ChartConfiguration<'doughnut'>['options'] = {
+  public doughnutChartConfig: ChartConfiguration<'doughnut'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     cutout: '60%',
     plugins: { legend: { position: 'right', labels: { color: '#e0e0e0' } } }
   };
-  public donneesGrapheAnneau = signal<ChartData<'doughnut'>>({ labels: [], datasets: [] });
+  public doughnutChartData = signal<ChartData<'doughnut'>>({ labels: [], datasets: [] });
+
+  public qualityChartConfig: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: (ctx) => ` Average Rating: ${ctx.raw}` } }
+    },
+    scales: {
+      x: { grid: { color: '#333' }, ticks: { color: '#b3b3b3' }, min: 0, max: 10 },
+      y: { grid: { display: false }, ticks: { color: '#e0e0e0' } }
+    }
+  };
+  public qualityChartData = signal<ChartData<'bar'>>({ labels: [], datasets: [] });
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit() {
-    this.chargerMetriques();
-    this.chargerGraphes();
+    this.loadMetrics();
+    this.loadCharts();
   }
 
-  chargerMetriques() {
-    this.serviceAnalytique.obtenirMetriquesCles().subscribe(donnees => {
-      this.metriquesCles.set(donnees);
+  loadMetrics() {
+    this.analyticsService.obtenirMetriquesCles().subscribe(data => {
+      this.keyMetrics.set(data);
     });
   }
 
-  chargerGraphes() {
-    this.serviceAnalytique.obtenirEvolutionScores().subscribe(res => {
-      this.donneesGrapheLigne.set({
+  loadCharts() {
+    this.analyticsService.obtenirEvolutionScores().subscribe(res => {
+      this.lineChartData.set({
         labels: res.etiquettes,
         datasets: [{
           data: res.valeurs,
-          label: 'Score Moyen',
+          label: 'Average Score',
           borderColor: '#bb86fc',
           backgroundColor: 'rgba(187, 134, 252, 0.2)',
-          // 'origin' est une valeur valide du plugin Filler de Chart.js
           fill: 'origin' as const,
           pointBackgroundColor: '#fff'
         }]
       });
     });
 
-    this.serviceAnalytique.obtenirDistributionGenres().subscribe(res => {
-      this.donneesGraphePolaire.set({
+    this.analyticsService.obtenirDistributionGenres().subscribe(res => {
+      this.polarChartData.set({
         labels: res.etiquettes,
         datasets: [{
           data: res.valeurs,
@@ -105,8 +115,8 @@ export class DashboardComponent implements OnInit {
       });
     });
 
-    this.serviceAnalytique.obtenirTopStudios().subscribe(res => {
-      this.donneesGrapheBarres.set({
+    this.analyticsService.obtenirTopStudios().subscribe(res => {
+      this.barChartData.set({
         labels: res.etiquettes,
         datasets: [{
           data: res.valeurs,
@@ -116,8 +126,8 @@ export class DashboardComponent implements OnInit {
       });
     });
 
-    this.serviceAnalytique.obtenirDistributionEpisodes().subscribe(res => {
-      this.donneesGrapheAnneau.set({
+    this.analyticsService.obtenirDistributionEpisodes().subscribe(res => {
+      this.doughnutChartData.set({
         labels: res.etiquettes,
         datasets: [{
           data: res.valeurs,
@@ -127,11 +137,24 @@ export class DashboardComponent implements OnInit {
         }]
       });
     });
+
+    /* Correctly placed subscription inside loadCharts method */
+    this.analyticsService.getTopGenresByScore().subscribe(res => {
+      this.qualityChartData.set({
+        labels: res.labels,
+        datasets: [{
+          data: res.data,
+          label: 'Average Score',
+          backgroundColor: '#ffbd33',
+          borderRadius: 4
+        }]
+      });
+    });
   }
 
   // ── Export PDF ────────────────────────────────────────────────────────────
-  async exporterVersPDF() {
-    const element = document.getElementById('contenu-dashboard');
+  async exportToPDF() {
+    const element = document.getElementById('dashboard-content');
     if (!element) return;
 
     const html2canvas = (await import('html2canvas')).default;
@@ -142,15 +165,15 @@ export class DashboardComponent implements OnInit {
       useCORS: true,
       backgroundColor: '#121212'
     }).then(canvas => {
-      const imgDonnees = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const largeurPdf = 210;
-      const hauteurPdf = (canvas.height * largeurPdf) / canvas.width;
+      const pdfWidth = 210;
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
       pdf.setFontSize(22);
-      pdf.text('Rapport Analytique', 105, 20, { align: 'center' });
-      pdf.addImage(imgDonnees, 'PNG', 0, 40, largeurPdf, hauteurPdf);
-      pdf.save('Dashboard_Animes.pdf');
+      pdf.text('Analytics Report', 105, 20, { align: 'center' });
+      pdf.addImage(imgData, 'PNG', 0, 40, pdfWidth, pdfHeight);
+      pdf.save('Anime_Dashboard.pdf');
     });
   }
 }

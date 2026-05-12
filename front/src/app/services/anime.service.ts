@@ -21,7 +21,6 @@ export interface Anime {
 export class AnimeService {
   private http = inject(HttpClient);
   
-  /* Utiliser le chemin absolu pour eviter les erreurs 404 selon la route active */
   private jsonUrl = '/assets/animes_graphe.json';
 
   private animesCache$: Observable<Anime[]> = this.http.get<any>(this.jsonUrl).pipe(

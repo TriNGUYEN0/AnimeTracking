@@ -1,62 +1,57 @@
-<div class="dashboard-container" id="contenu-dashboard">
+<div class="dashboard-container" id="dashboard-content">
 
-  <!-- En-tête avec titre et bouton export -->
   <div class="page-header">
-    <h2>🎌 Dashboard Analytique</h2>
-    <button class="btn-export" (click)="exporterVersPDF()">
-      📄 Exporter en PDF
+    <h2>🎌 Analytics Dashboard</h2>
+    <button class="btn-export" (click)="exportToPDF()" data-html2canvas-ignore>
+      📄 Export to PDF
     </button>
   </div>
 
-  <!-- KPI Cards — classes corrigées : metrics-grid → kpi-grid, metric-card → kpi-card -->
-  @if (metriquesCles()) {
+  @if (keyMetrics()) {
     <div class="kpi-grid">
       <div class="kpi-card">
         <div class="kpi-icon">📊</div>
         <div class="kpi-info">
-          <span class="kpi-value">{{ metriquesCles()?.total_anime }}</span>
-          <span class="kpi-label">Total Animes</span>
+          <span class="kpi-value">{{ keyMetrics()?.total_anime }}</span>
+          <span class="kpi-label">Total Anime</span>
         </div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-icon">⭐</div>
         <div class="kpi-info">
-          <span class="kpi-value">{{ metriquesCles()?.score_moyen }}</span>
-          <span class="kpi-label">Score Moyen</span>
+          <span class="kpi-value">{{ keyMetrics()?.score_moyen }}</span>
+          <span class="kpi-label">Average Score</span>
         </div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-icon">🎬</div>
         <div class="kpi-info">
-          <span class="kpi-value">{{ metriquesCles()?.total_episodes | number }}</span>
-          <span class="kpi-label">Total Épisodes</span>
+          <span class="kpi-value">{{ keyMetrics()?.total_episodes | number }}</span>
+          <span class="kpi-label">Total Episodes</span>
         </div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-icon">🏆</div>
         <div class="kpi-info">
-          <span class="kpi-value" style="font-size: 1.2rem;">{{ metriquesCles()?.meilleur_studio }}</span>
-          <span class="kpi-label">Studio Leader</span>
+          <span class="kpi-value" style="font-size: 1.2rem;">{{ keyMetrics()?.meilleur_studio }}</span>
+          <span class="kpi-label">Top Studio</span>
         </div>
       </div>
     </div>
   }
 
-  <!-- Grille des graphiques -->
   <div class="charts-grid">
-
-    <!-- Graphique pleine largeur -->
     <div class="chart-card full-width">
       <div class="card-header">
-        <h3>Évolution des Scores par Année</h3>
+        <h3>Score Evolution by Year</h3>
       </div>
       <div class="chart-wrapper">
         <canvas baseChart
-                [data]="donneesGrapheLigne()"
-                [options]="configGrapheLigne"
+                [data]="lineChartData()"
+                [options]="lineChartConfig"
                 [type]="'line'">
         </canvas>
       </div>
@@ -64,12 +59,12 @@
 
     <div class="chart-card">
       <div class="card-header">
-        <h3>Top 10 Studios Actifs</h3>
+        <h3>Top 10 Active Studios</h3>
       </div>
       <div class="chart-wrapper">
         <canvas baseChart
-                [data]="donneesGrapheBarres()"
-                [options]="configGrapheBarres"
+                [data]="barChartData()"
+                [options]="barChartConfig"
                 [type]="'bar'">
         </canvas>
       </div>
@@ -77,12 +72,12 @@
 
     <div class="chart-card">
       <div class="card-header">
-        <h3>Genres les plus Populaires</h3>
+        <h3>Most Popular Genres</h3>
       </div>
       <div class="chart-wrapper">
         <canvas baseChart
-                [data]="donneesGraphePolaire()"
-                [options]="configGraphePolaire"
+                [data]="polarChartData()"
+                [options]="polarChartConfig"
                 [type]="'polarArea'">
         </canvas>
       </div>
@@ -90,16 +85,28 @@
 
     <div class="chart-card">
       <div class="card-header">
-        <h3>Format des Séries (Épisodes)</h3>
+        <h3>Series Format (Episodes)</h3>
       </div>
       <div class="chart-wrapper">
         <canvas baseChart
-                [data]="donneesGrapheAnneau()"
-                [options]="configGrapheAnneau"
+                [data]="doughnutChartData()"
+                [options]="doughnutChartConfig"
                 [type]="'doughnut'">
         </canvas>
       </div>
     </div>
 
+    <div class="chart-card">
+      <div class="card-header">
+        <h3>Top 10 Genres by Average Score</h3>
+      </div>
+      <div class="chart-wrapper">
+        <canvas baseChart
+                [data]="qualityChartData()"
+                [options]="qualityChartConfig"
+                [type]="'bar'">
+        </canvas>
+      </div>
+    </div>
   </div>
 </div>
