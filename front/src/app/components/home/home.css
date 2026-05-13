@@ -259,3 +259,182 @@
   border-radius: 8px;
   margin: 20px;
 }
+
+/* Configuration globale de l ecran */
+.ecran-chargement {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #121212;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Conteneur principal */
+.animation-ramen {
+  position: relative;
+  width: 120px;
+  height: 100px;
+}
+
+/* Dessin du bol */
+.bol {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  width: 100px;
+  height: 50px;
+  background-color: #bb86fc;
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
+  border: 3px solid #333333;
+  box-sizing: border-box;
+  box-shadow: inset -10px -5px 0px rgba(0, 0, 0, 0.2);
+  z-index: 3;
+}
+
+/* Dessin des baguettes croisees */
+.baguettes {
+  position: absolute;
+  bottom: 45px;
+  left: -5px;
+  width: 130px;
+  height: 6px;
+  background-color: #e8e4d9;
+  transform: rotate(-12deg);
+  border: 1px solid #333333;
+  border-radius: 3px;
+  z-index: 4;
+}
+
+/* Section des garnitures */
+.garnitures {
+  position: absolute;
+  bottom: 40px;
+  left: 15px;
+  width: 90px;
+  height: 25px;
+  z-index: 2;
+}
+
+.algue {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 18px;
+  height: 30px;
+  background-color: #2b4227;
+  transform: skew(-10deg) rotate(15deg);
+  border: 1px solid #1a2918;
+}
+
+.oeuf {
+  position: absolute;
+  bottom: 0;
+  left: 5px;
+  width: 28px;
+  height: 18px;
+  background-color: #fdfbf7;
+  border-radius: 50% 50% 40% 40%;
+  border: 2px solid #333333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: rotate(-10deg);
+}
+
+.jaune-oeuf {
+  width: 12px;
+  height: 12px;
+  background-color: #ff9d00;
+  border-radius: 50%;
+}
+
+.narutomaki {
+  position: absolute;
+  bottom: -2px;
+  left: 38px;
+  width: 22px;
+  height: 14px;
+  background-color: #fdfbf7;
+  border-radius: 40%;
+  border: 2px solid #333333;
+  transform: rotate(15deg);
+  overflow: hidden;
+}
+
+.spirale {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #ff4d4d;
+  border-radius: 50%;
+  border-top-color: transparent;
+  margin: 1px auto 0;
+  transform: rotate(45deg);
+}
+
+/* Animation de la vapeur */
+.vapeur {
+  position: absolute;
+  width: 6px;
+  height: 35px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: onduler 2s infinite ease-in-out;
+  opacity: 0;
+}
+
+.v1 { left: 35px; bottom: 50px; animation-delay: 0s; }
+.v2 { left: 60px; bottom: 55px; animation-delay: 0.6s; }
+.v3 { left: 85px; bottom: 50px; animation-delay: 1.2s; }
+
+@keyframes onduler {
+  0% {
+    transform: translateY(0) translateX(0) scaleX(1);
+    opacity: 0;
+  }
+  25% {
+    transform: translateY(-15px) translateX(-4px) scaleX(1.2);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-30px) translateX(4px) scaleX(1.5);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-45px) translateX(-4px) scaleX(1.8);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-60px) translateX(0) scaleX(2);
+    opacity: 0;
+  }
+}
+
+/* Texte clignotant */
+.texte-chargement {
+  margin-top: 30px;
+  color: #bb86fc;
+  font-family: monospace;
+  font-size: 1.2rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  animation: clignoter 1.5s infinite;
+}
+
+@keyframes clignoter {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Transitions de vue du navigateur */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+}

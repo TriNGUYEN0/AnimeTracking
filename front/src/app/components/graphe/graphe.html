@@ -1,22 +1,22 @@
 <div class="graphe-layout">
   
   <div class="panneau-filtres">
-    <h2>Explorateur</h2>
+    <h2>Explorer</h2>
 
     <div class="groupe-controle">
-      <label>Recherche par titre</label>
+      <label>Search by title</label>
       <input type="text" placeholder="Ex: Naruto..." [(ngModel)]="termeRecherche" (keyup)="appliquerFiltres()">
     </div>
     
     <div class="groupe-controle">
-      <label>Limite de nœuds : {{ limiteNoeuds }}</label>
+      <label>Node limit: {{ limiteNoeuds }}</label>
       <input type="range" min="10" max="1000" step="10" [(ngModel)]="limiteNoeuds" (change)="appliquerFiltres()">
     </div>
 
     <div class="groupe-controle">
-      <label>Studio de production</label>
+      <label>Production studio</label>
       <select [(ngModel)]="filtreStudio" (change)="appliquerFiltres()">
-        <option value="Tous">Tous</option>
+        <option value="Tous">All</option>
         @for (s of studiosDisponibles; track s) {
           <option [value]="s">{{ s }}</option>
         }
@@ -24,9 +24,9 @@
     </div>
 
     <div class="groupe-controle">
-      <label>Année de sortie</label>
+      <label>Release year</label>
       <select [(ngModel)]="filtreAnnee" (change)="appliquerFiltres()">
-        <option value="Toutes">Toutes</option>
+        <option value="Toutes">All</option>
         @for (a of anneesDisponibles; track a) {
           <option [value]="a">{{ a }}</option>
         }
@@ -36,7 +36,7 @@
     <div class="groupe-controle">
       <label>Genres</label>
       <select [(ngModel)]="filtreGenre" (change)="appliquerFiltres()">
-        <option value="Tous">Tous</option>
+        <option value="Tous">All</option>
         @for (g of genresDisponibles; track g) {
           <option [value]="g">{{ g }}</option>
         }
@@ -70,7 +70,7 @@
       
       @if (animeSelectionne.studios && animeSelectionne.studios.length > 0) {
         <div class="studios">
-          <strong>Studios : </strong> {{ animeSelectionne.studios.join(', ') }}
+          <strong>Studios: </strong> {{ animeSelectionne.studios.join(', ') }}
         </div>
       }
 

@@ -42,4 +42,4 @@ def extraire_donnees_anime(nombre_de_pages):
         json.dump(liste_animes, fichier, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    extraire_donnees_anime(600)
+    extraire_donnees_anime(1000)

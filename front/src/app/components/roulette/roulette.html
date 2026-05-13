@@ -1,46 +1,61 @@
-<div class="conteneur-roulette">
-  <h2 class="titre">You don't know what to watch?</h2>
-
-  <div *ngIf="listeAnimes.length > 0; else ecranChargement">
-    
-    <div class="fenetre-carrousel" *ngIf="!resultatAffiche">
-      <div class="piste-carrousel" [style.transform]="decalagePiste">
-        <div 
-          *ngFor="let anime of listeAnimes; let i = index" 
-          class="carte-anime" 
-          [class.active]="i === indexActif"
-        >
-          <img [src]="anime.image_url" [alt]="anime.title">
-        </div>
-      </div>
-    </div>
-
-    <div class="resultat-final" *ngIf="resultatAffiche && animeGagnant">
-      <div class="resultat-gauche">
-        <img [src]="animeGagnant.large_image_url || animeGagnant.image_url" [alt]="animeGagnant.title" class="image-gagnant">
+<div class="roulette-container">
+  
+  @if (animationState() === 'idle') {
+    <div class="interaction-zone">
+      <h3 class="instruction-text">Hmm...don't know what to watch?</h3>
+      <p class="sub-instruction">Shake the traditional Omikuji box to find your next anime.</p>
+      
+      <div class="omikuji-box">
+        <div class="box-label">御<br>神<br>籤</div>
       </div>
       
-      <div class="resultat-droite">
-        <h3>{{ animeGagnant.title }}</h3>
-        <div class="tags">
-          <span class="score">⭐ {{ animeGagnant.score || 'N/A' }}</span>
-          <span class="annee">📅 {{ animeGagnant.year || 'N/A' }}</span>
-        </div>
-        <p class="synopsis">{{ animeGagnant.synopsis || 'No description available.' }}</p>
-      </div>
+      <button class="btn-draw" (click)="drawOmikuji()">
+        Shake Omikuji
+      </button>
     </div>
+  }
 
-  </div>
+  @if (animationState() === 'shaking') {
+    <div class="interaction-zone">
+      <div class="omikuji-box shaking-animation">
+        <div class="box-label">御<br>神<br>籤</div>
+        <div class="bamboo-stick"></div>
+      </div>
+      <p class="chant-text">Consulting the spirits...</p>
+    </div>
+  }
 
-  <ng-template #ecranChargement>
-    <p class="texte-chargement">Loading recommendations...</p>
-  </ng-template>
+  @if (animationState() === 'revealed' && selectedAnime()) {
+    <div class="omikuji-paper">
+      
+      <div class="paper-left">
+        <img [src]="selectedAnime()?.image_url" [alt]="selectedAnime()?.titre" class="destiny-image" />
+      </div>
 
-  <button 
-    class="btn-tourner" 
-    (click)="tournerRoulette()" 
-    [disabled]="enRotation || listeAnimes.length === 0"
-  >
-    {{ enRotation ? 'Selecting...' : 'Spin the wheel' }}
-  </button>
+      <div class="paper-right">
+        <div class="fortune-header">
+          <span class="fortune-text">Great Blessing (大吉)</span>
+        </div>
+
+        <h3 class="destiny-title">{{ selectedAnime()?.titre }}</h3>
+
+        <div class="destiny-meta">
+          <span class="score">⭐ Score: {{ selectedAnime()?.score }}</span>
+          <div class="genres">
+            @for (genre of selectedAnime()?.genres; track genre) {
+              <span class="genre-badge">{{ genre }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="destiny-description">
+          <p>{{ selectedAnime()?.synopsis || 'No description available for this anime.' }}</p>
+        </div>
+
+        <button class="btn-reset" (click)="resetDraw()">Draw Again</button>
+      </div>
+
+    </div>
+  }
+
 </div>

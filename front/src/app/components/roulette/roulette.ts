@@ -1,80 +1,61 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { AnimeService, Anime } from '../../services/anime.service';
+
+export interface RouletteAnime {
+  id: number;
+  titre: string; // Keeping JSON key mapping
+  image_url: string;
+  score: number;
+  genres: string[];
+  synopsis: string;
+}
 
 @Component({
   selector: 'app-roulette',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './roulette.html',
-  styleUrls: ['./roulette.css']
+  styleUrl: './roulette.css'
 })
 export class RouletteComponent implements OnInit {
-  private serviceAnime = inject(AnimeService);
-
-  listeAnimes: Anime[] = [];
-  indexActif: number = 0;
-  enRotation: boolean = false;
-  animeGagnant: Anime | null = null;
+  animeList: RouletteAnime[] = [];
   
-  // NOUVEAU : État pour afficher l'écran de résultat final
-  resultatAffiche: boolean = false;
+  // State management using Signals
+  selectedAnime = signal<RouletteAnime | null>(null);
+  animationState = signal<'idle' | 'shaking' | 'revealed'>('idle');
+
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.serviceAnime.getTopAnime().subscribe({
-      next: (donnees) => {
-        // Astuce : Mélanger (shuffle) le tableau pour que les images paraissent aléatoires
-        this.listeAnimes = donnees.sort(() => 0.5 - Math.random()).slice(0, 20);
-        
-        // Placer l'index de départ au milieu
-        this.indexActif = Math.floor(this.listeAnimes.length / 2);
+    this.loadData();
+  }
+
+  private loadData(): void {
+    this.http.get<RouletteAnime[]>('assets/animes_graphe.json').subscribe({
+      next: (data) => {
+        this.animeList = data;
       },
-      error: (erreur) => console.error("Erreur API:", erreur)
+      error: (err) => console.error(err)
     });
   }
 
-  // NOUVEAU : Calculer le décalage (translation) pour centrer la carte active
-  get decalagePiste(): string {
-    // 155px = 140px (largeur d'une carte) + 15px (espace entre les cartes)
-    // 70px = la moitié d'une carte (pour cibler son centre)
-    return `translateX(calc(50% - ${this.indexActif * 155}px - 70px))`;
+  drawOmikuji(): void {
+    if (this.animeList.length === 0) return;
+
+    this.animationState.set('shaking');
+    this.selectedAnime.set(null);
+
+    // Wait for the shake animation to complete before revealing
+    setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * this.animeList.length);
+      this.selectedAnime.set(this.animeList[randomIndex]);
+      this.animationState.set('revealed');
+    }, 2000);
   }
 
-  tournerRoulette(): void {
-    if (this.enRotation || this.listeAnimes.length === 0) return;
-
-    this.enRotation = true;
-    this.resultatAffiche = false; // Cacher le résultat précédent
-    this.animeGagnant = null;
-    let tours = 0;
-    const maxTours = 40; 
-
-    // Requête API en arrière-plan
-    this.serviceAnime.obtenirAnimeAleatoire().subscribe({
-      next: (anime) => { this.animeGagnant = anime; },
-      error: () => { 
-        this.animeGagnant = this.listeAnimes[Math.floor(Math.random() * this.listeAnimes.length)]; 
-      }
-    });
-
-    const intervalle = setInterval(() => {
-      this.indexActif = (this.indexActif + 1) % this.listeAnimes.length;
-      tours++;
-
-      if (tours >= maxTours && this.animeGagnant) {
-        clearInterval(intervalle);
-        this.listeAnimes[this.indexActif] = this.animeGagnant;
-        this.enRotation = false;
-        
-        // NOUVEAU : Attendre 1 seconde (suspense) avant d'afficher les détails
-        setTimeout(() => {
-          this.resultatAffiche = true;
-        }, 1000);
-
-      } else if (tours > 80) { // Sécurité anti-boucle infinie
-        clearInterval(intervalle);
-        this.enRotation = false;
-      }
-    }, 100);
+  resetDraw(): void {
+    this.animationState.set('idle');
+    this.selectedAnime.set(null);
   }
 }

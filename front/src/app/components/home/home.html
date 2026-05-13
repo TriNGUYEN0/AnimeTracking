@@ -1,10 +1,26 @@
 <div class="home-container">
 
   @if (chargementEnCours()) {
-    <div class="server-loading-overlay">
-      <div class="loader"></div>
-      <p>Chargement des données...</p>
-      <small>Lecture en cours...</small>
+    <div class="ecran-chargement">
+      <div class="animation-ramen">
+        <div class="vapeur v1"></div>
+        <div class="vapeur v2"></div>
+        <div class="vapeur v3"></div>
+
+        <div class="garnitures">
+          <div class="algue"></div>
+          <div class="oeuf">
+            <div class="jaune-oeuf"></div>
+          </div>
+          <div class="narutomaki">
+            <div class="spirale"></div>
+          </div>
+        </div>
+
+        <div class="baguettes"></div>
+        <div class="bol"></div>
+      </div>
+      <p class="texte-chargement">Loading data...</p>
     </div>
   }
 
@@ -23,7 +39,7 @@
           <p class="intro-projet">
             Projet personnel utilisant des données extraites depuis API Jinkan pour afficher les tendances et statistiques des animes. <br>
             Tri NGUYEN <br>
-            Dernière mise à jour : 10 Mai 2026
+            Dernière mise à jour : 13 May 2026
           </p>
 
           <span class="hero-rank">#1 Tendance</span>  
@@ -40,7 +56,7 @@
 
   <div class="content-container">
     <div class="mood-section">
-      <h3>Quelle est votre humeur aujourd'hui ?</h3>
+      <h3>What's your mood today?</h3>
       <div class="mood-buttons">
         @for (humeur of humeurs; track humeur.label) {
           <button 

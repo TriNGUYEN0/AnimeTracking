@@ -1,140 +1,334 @@
-/* --- Conteneur principal --- */
-.conteneur-roulette {
-  text-align: center;
-  padding: 2rem;
-  overflow: hidden;
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.titre {
-  color: #ffffff;
-  font-style: italic;
-  margin-bottom: 20px;
-}
-
-/* --- PHASE 1 : Roulette --- */
-.fenetre-carrousel {
-  width: 100%;
-  overflow: hidden; /* Cacher les cartes qui débordent à gauche/droite */
-  position: relative;
-  height: 300px;
-  display: flex;
-  align-items: center;
-}
-
-.piste-carrousel {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  width: max-content;
-  transition: transform 0.1s linear; /* Animation de glissement fluide */
-}
-
-.carte-anime {
-  width: 140px;
-  height: 200px;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.3s ease-in-out;
-  filter: grayscale(100%);
-  opacity: 0.4;
-  transform: scale(0.8);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  flex-shrink: 0; /* Empêcher la carte de rétrécir */
-}
-
-.carte-anime img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.carte-anime.active {
-  filter: grayscale(0%);
-  opacity: 1;
-  transform: scale(1.2);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-  z-index: 10;
-}
-
-/* --- PHASE 2 : Résultat Final --- */
-.resultat-final {
-  display: flex;
-  gap: 30px;
-  text-align: left;
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  animation: apparaitre 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Effet de zoom dynamique */
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-@keyframes apparaitre {
-  from { opacity: 0; transform: scale(0.7); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.resultat-gauche {
-  flex: 0 0 220px;
-}
-
-.image-gagnant {
-  width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
-.resultat-droite {
-  flex: 1;
+/* Main Container */
+.roulette-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
+  min-height: 450px;
+  padding: 20px;
+  color: #ffffff;
 }
 
-.resultat-droite h3 {
-  font-size: 1.8rem;
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #2c3e50;
-}
-
-.tags {
+.interaction-zone {
   display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-  font-weight: bold;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
-.score { color: #f39c12; }
-.annee { color: #3498db; }
+.instruction-text {
+  color: #bb86fc;
+  margin-bottom: 5px;
+  font-size: 1.5rem;
+}
 
-.synopsis {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #555;
-  display: -webkit-box;
-  -webkit-line-clamp: 7; /* Couper le texte après 7 lignes */
-  -webkit-box-orient: vertical;
+.sub-instruction {
+  color: #b3b3b3;
+  margin-bottom: 30px;
+  font-size: 0.9rem;
+}
+
+/* Traditional Omikuji Box Design */
+.omikuji-box {
+  width: 70px;
+  height: 140px;
+  background: linear-gradient(to right, #8b5a2b, #cd853f, #8b5a2b);
+  border-radius: 10px 10px 5px 5px;
+  position: relative;
+  margin: 0 auto 30px auto;
+  box-shadow: inset 0px 15px 10px rgba(0, 0, 0, 0.4), 0 10px 20px rgba(0, 0, 0, 0.5);
+  border-top: 8px solid #5c3a21;
+  border-bottom: 5px solid #5c3a21;
+}
+
+/* Dispensing hole */
+.omikuji-box::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
+  height: 8px;
+  background-color: #1a1a1a;
+  border-radius: 50%;
+}
+
+/* Japanese Label */
+.box-label {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fdfbf7;
+  color: #121212;
+  padding: 5px 2px;
+  font-weight: bold;
+  font-family: "Yu Mincho", "MS Mincho", serif;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  border-radius: 2px;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Shaking Animation */
+.shaking-animation {
+  animation: shake 0.3s infinite ease-in-out;
+}
+
+@keyframes shake {
+  0% { transform: translate(2px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-5deg); }
+  20% { transform: translate(-3px, 0px) rotate(10deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(15deg); }
+  50% { transform: translate(-1px, 2px) rotate(-10deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-15deg); }
+  80% { transform: translate(-1px, -1px) rotate(10deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-5deg); }
+}
+
+/* Bamboo Stick */
+.bamboo-stick {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 80px;
+  background: linear-gradient(to right, #d2b48c, #f5deb3, #d2b48c);
+  border-radius: 3px;
+  animation: slideOut 2s forwards ease-out;
+  z-index: -1;
+}
+
+@keyframes slideOut {
+  0% { top: 10px; opacity: 0; }
+  50% { opacity: 1; }
+  100% { top: -60px; opacity: 1; }
+}
+
+.chant-text {
+  color: #bb86fc;
+  font-family: monospace;
+  letter-spacing: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Enhanced Draw Button */
+.btn-draw {
+  position: relative;
+  background: linear-gradient(135deg, #1f112e 0%, #121212 100%);
+  color: #bb86fc;
+  border: 1px solid rgba(187, 134, 252, 0.5);
+  padding: 14px 40px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(187, 134, 252, 0.15);
+  margin-top: 10px;
+}
+
+.btn-draw:hover {
+  background: #bb86fc;
+  color: #121212;
+  border-color: #bb86fc;
+  box-shadow: 0 0 20px rgba(187, 134, 252, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.4);
+  transform: translateY(-3px);
+}
+
+.btn-draw:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(187, 134, 252, 0.4);
+}
+
+.btn-draw::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
+}
+
+.btn-draw:hover::before {
+  left: 150%;
+}
+
+/* Fortune Paper */
+.omikuji-paper {
+  background-color: #fdfbf7;
+  width: 700px;
+  max-width: 95vw;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: row; 
+  gap: 25px;
+  position: relative;
+  animation: unfold 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transform-origin: top center;
+}
+
+@keyframes unfold {
+  0% { transform: scaleY(0); opacity: 0; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+/* Left side layout */
+.paper-left {
+  flex: 0 0 200px;
+  display: flex;
+}
+
+.destiny-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #121212;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
+}
+
+/* Right side layout */
+.paper-right {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; 
+  text-align: left;
   overflow: hidden;
 }
 
-/* --- BOUTON --- */
-.btn-tourner {
-  margin-top: 2rem;
-  padding: 12px 30px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+.fortune-header {
+  border: 2px solid #d32f2f;
+  padding: 5px 15px;
+  margin-bottom: 15px;
+  border-radius: 3px;
+  display: inline-block;
 }
 
-.btn-tourner:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-.btn-tourner:hover:not(:disabled) { background-color: #c0392b; }
+.fortune-text {
+  color: #d32f2f;
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.destiny-title {
+  color: #121212;
+  margin: 0 0 10px 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+.destiny-meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.score {
+  color: #121212;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.genre-badge {
+  background-color: #bb86fc;
+  color: #121212;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Scrollable description */
+.destiny-description {
+  color: #4a4a4a;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 120px;
+  padding-right: 15px;
+  text-align: justify;
+}
+
+/* Custom Scrollbar */
+.destiny-description::-webkit-scrollbar {
+  width: 6px;
+}
+
+.destiny-description::-webkit-scrollbar-thumb {
+  background: #bb86fc;
+  border-radius: 3px;
+}
+
+/* Reset Button */
+.btn-reset {
+  color: #121212;
+  border: 2px solid #121212;
+  background-color: transparent;
+  padding: 10px 25px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.btn-reset:hover {
+  background-color: #121212;
+  color: #fdfbf7;
+}
+
+/* Responsive adjustment */
+@media (max-width: 650px) {
+  .omikuji-paper {
+    flex-direction: column;
+    width: 90vw;
+  }
+  
+  .paper-left {
+    flex: auto;
+    width: 100%;
+  }
+  
+  .destiny-image {
+    height: 250px;
+  }
+}

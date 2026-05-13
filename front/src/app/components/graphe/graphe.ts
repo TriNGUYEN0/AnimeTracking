@@ -141,19 +141,21 @@ export class GrapheComponent implements OnInit {
     const ensembleCategories = new Set<string>();
 
     donneesFiltrees.forEach(anime => {
-      const genrePrincipal = anime.genres && anime.genres.length > 0 ? anime.genres[0] : 'Inconnu';
+      const genrePrincipal = anime.genres && anime.genres.length > 0 ? anime.genres[0] : 'Unknown';
       ensembleCategories.add(genrePrincipal);
 
+      // Convert nodes to display anime images instead of simple dots
       noeuds.push({
         id: anime.id.toString(),
-        name: anime.titre || 'Inconnu',
+        name: anime.titre || 'Unknown',
         value: anime.score || 0,
-        symbolSize: (anime.score || 5) * 4,
+        symbol: anime.image_url ? 'image://' + anime.image_url : 'circle',
+        symbolSize: (anime.score || 5) * 8, 
         category: genrePrincipal,
         donneesOriginales: anime,
         itemStyle: {
-          shadowBlur: 10,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
+          shadowBlur: 15,
+          shadowColor: 'rgba(0, 0, 0, 0.15)'
         }
       });
     });
@@ -216,8 +218,11 @@ export class GrapheComponent implements OnInit {
             show: true,
             position: 'right',
             formatter: '{b}',
-            color: '#ffffff',
-            fontSize: 10
+            color: '#e8e4d9', 
+            fontSize: 11,
+            fontWeight: 'bold',
+            textBorderColor: '#121a14', 
+            textBorderWidth: 2
           },
           emphasis: {
             focus: 'adjacency',
