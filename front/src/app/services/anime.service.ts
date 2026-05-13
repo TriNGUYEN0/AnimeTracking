@@ -21,7 +21,7 @@ export interface Anime {
 export class AnimeService {
   private http = inject(HttpClient);
   
-  private jsonUrl = '/assets/animes_graphe.json';
+  private jsonUrl = 'assets/animes_graphe.json';
 
   private animesCache$: Observable<Anime[]> = this.http.get<any>(this.jsonUrl).pipe(
     map(reponse => {

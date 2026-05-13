@@ -190,3 +190,72 @@
   .filter-controls    { width: 100%; }
   .year-select        { width: 100%; }
 }
+
+/* ── Header Actions (Filter + Export) ── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* ── Spotlight Banner ── */
+.spotlight-banner {
+  display: flex;
+  background: linear-gradient(135deg, rgba(187, 134, 252, 0.1) 0%, rgba(3, 218, 198, 0.05) 100%);
+  border: 1px solid var(--accent-color);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 30px;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.5s ease-out;
+}
+
+.spotlight-img {
+  width: 80px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.spotlight-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.spotlight-badge {
+  color: var(--accent-color);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.spotlight-details h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.spotlight-details p {
+  margin: 0;
+  color: #b3b3b3;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+}
