@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { BaseChartDirective } from 'ng2-charts';
-import { HttpClient } from '@angular/common/http';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { DataStore } from '../../services/data-store';
 import { ChartConfiguration, ChartData } from 'chart.js';
 
 export interface MetriquesCles {
@@ -15,14 +15,16 @@ export interface MetriquesCles {
   selector: 'app-dashboard',
   standalone: true,
   imports: [BaseChartDirective, DecimalPipe],
+  // Chart.js is registered here so it only ships in this lazily-loaded page.
+  providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class DashboardComponent implements OnInit {
-  private http = inject(HttpClient);
+export class DashboardComponent {
+  private store = inject(DataStore);
 
   /* ── 1. ETAT GLOBAL (Signals) ── */
-  rawData = signal<any[]>([]);
+  rawData = computed(() => this.store.animes());
   selectedDecade = signal<string>('All');
 
   // NOUVEAU: Signaux pour les filtres interactifs
@@ -41,13 +43,13 @@ export class DashboardComponent implements OnInit {
 
       if (startYear === 1990) {
         data = data.filter(
-          d => d.annee < 2000 && d.annee > 0
+          d => d.year < 2000 && d.year > 0
         );
       } else {
         data = data.filter(
           d =>
-            d.annee >= startYear &&
-            d.annee < startYear + 10
+            d.year >= startYear &&
+            d.year < startYear + 10
         );
       }
     }
@@ -84,6 +86,7 @@ export class DashboardComponent implements OnInit {
     if (data.length === 0) return null;
 
     let sumScore = 0;
+    let scored = 0;
     let sumEpisodes = 0;
 
     const studiosCount: Record<string, number> = {};
@@ -91,6 +94,7 @@ export class DashboardComponent implements OnInit {
     data.forEach(anime => {
       if (anime.score) {
         sumScore += anime.score;
+        scored++;
       }
 
       if (anime.episodes) {
@@ -111,7 +115,7 @@ export class DashboardComponent implements OnInit {
     return {
       total_anime: data.length,
       score_moyen: Number(
-        (sumScore / data.length).toFixed(2)
+        (scored ? sumScore / scored : 0).toFixed(2)
       ),
       total_episodes: sumEpisodes,
       meilleur_studio:
@@ -173,19 +177,19 @@ export class DashboardComponent implements OnInit {
 
     data.forEach(anime => {
       if (
-        anime.annee &&
+        anime.year &&
         anime.score &&
-        anime.annee > 1960
+        anime.year > 1960
       ) {
-        if (!yearStats[anime.annee]) {
-          yearStats[anime.annee] = {
+        if (!yearStats[anime.year]) {
+          yearStats[anime.year] = {
             sum: 0,
             count: 0
           };
         }
 
-        yearStats[anime.annee].sum += anime.score;
-        yearStats[anime.annee].count += 1;
+        yearStats[anime.year].sum += anime.score;
+        yearStats[anime.year].count += 1;
       }
     });
 
@@ -522,19 +526,6 @@ export class DashboardComponent implements OnInit {
       }
     }
   };
-
-  /* ── Lifecycle ── */
-  ngOnInit(): void {
-    this.http
-      .get<any>('assets/animes_graphe.json')
-      .subscribe(res => {
-        const donnees = Array.isArray(res)
-          ? res
-          : (res.data || []);
-
-        this.rawData.set(donnees);
-      });
-  }
 
   onDecadeChange(event: Event): void {
     this.selectedDecade.set(

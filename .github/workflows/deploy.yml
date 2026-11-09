@@ -1,0 +1,45 @@
+name: deploy
+
+# Builds the Angular app and publishes it to the gh-pages branch (GitHub Pages "deploy from branch").
+on:
+  push:
+    branches: [main]
+    paths: ['front/**', '.github/workflows/deploy.yml']
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main # when called after a data refresh, build the freshly committed data
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+
+      - name: Build
+        working-directory: front
+        run: |
+          npm ci
+          npx ng build --base-href /AnimeTracking/
+          touch dist/animetracking-ui/browser/.nojekyll
+
+      - name: Publish to gh-pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: front/dist/animetracking-ui/browser
+          branch: gh-pages
+          single-commit: true

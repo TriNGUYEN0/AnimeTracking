@@ -2,11 +2,17 @@
   <header>
     <h1>Anime Tracking</h1>
     <nav>
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
       <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
       <a routerLink="/graphe" routerLinkActive="active">Graph</a>
     </nav>
   </header>
 
   <router-outlet />
+
+  <footer class="site-footer">
+    Data: <a href="https://myanimelist.net" target="_blank" rel="noopener">MyAnimeList</a> via
+    <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a>
+    · not affiliated with MyAnimeList · by Tri NGUYEN
+  </footer>
 </div>

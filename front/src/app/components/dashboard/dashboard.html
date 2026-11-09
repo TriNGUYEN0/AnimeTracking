@@ -6,6 +6,7 @@
     <div class="header-actions">
       <select
         class="year-select"
+        [value]="selectedDecade()"
         (change)="onDecadeChange($event)"
       >
         <option value="All">All Time</option>

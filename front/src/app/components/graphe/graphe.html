@@ -5,19 +5,19 @@
 
     <div class="groupe-controle">
       <label>Search by title</label>
-      <input type="text" placeholder="Ex: Naruto..." [(ngModel)]="termeRecherche" (keyup)="appliquerFiltres()">
+      <input type="text" placeholder="Title or studio, e.g. Naruto" [(ngModel)]="termeRecherche" (keyup)="appliquerFiltres()">
     </div>
     
     <div class="groupe-controle">
       <label>Node limit: {{ limiteNoeuds }}</label>
-      <input type="range" min="10" max="1000" step="10" [(ngModel)]="limiteNoeuds" (change)="appliquerFiltres()">
+      <input type="range" min="10" max="300" step="10" [(ngModel)]="limiteNoeuds" (change)="appliquerFiltres()">
     </div>
 
     <div class="groupe-controle">
       <label>Production studio</label>
       <select [(ngModel)]="filtreStudio" (change)="appliquerFiltres()">
         <option value="Tous">All</option>
-        @for (s of studiosDisponibles; track s) {
+        @for (s of store.studios(); track s) {
           <option [value]="s">{{ s }}</option>
         }
       </select>
@@ -27,7 +27,7 @@
       <label>Release year</label>
       <select [(ngModel)]="filtreAnnee" (change)="appliquerFiltres()">
         <option value="Toutes">All</option>
-        @for (a of anneesDisponibles; track a) {
+        @for (a of anneesDisponibles(); track a) {
           <option [value]="a">{{ a }}</option>
         }
       </select>
@@ -37,7 +37,7 @@
       <label>Genres</label>
       <select [(ngModel)]="filtreGenre" (change)="appliquerFiltres()">
         <option value="Tous">All</option>
-        @for (g of genresDisponibles; track g) {
+        @for (g of store.genres(); track g) {
           <option [value]="g">{{ g }}</option>
         }
       </select>
@@ -52,13 +52,13 @@
     <div class="modale-details">
       <button class="bouton-fermer" (click)="fermerDetails()">X</button>
       
-      <img [src]="animeSelectionne.large_image_url || animeSelectionne.image_url" [alt]="animeSelectionne.titre" />
+      <img [src]="posterUrl(animeSelectionne, true)" [alt]="animeSelectionne.title" />
       
-      <h3>{{ animeSelectionne.titre }}</h3>
+      <h3><a [href]="malUrl(animeSelectionne)" target="_blank" rel="noopener">{{ animeSelectionne.title }}</a></h3>
       
       <div class="info-meta">
         <span class="score">⭐ {{ animeSelectionne.score || 'N/A' }}</span>
-        <span class="annee">📅 {{ animeSelectionne.annee || 'N/A' }}</span>
+        <span class="annee">📅 {{ animeSelectionne.year || 'N/A' }}</span>
         <span class="episodes">📺 {{ animeSelectionne.episodes || '?' }} EPS</span>
       </div>
 
@@ -74,7 +74,7 @@
         </div>
       }
 
-      <p class="synopsis">{{ animeSelectionne.synopsis }}</p>
+      <p class="synopsis">{{ synopsis() }}</p>
     </div>
   }
 

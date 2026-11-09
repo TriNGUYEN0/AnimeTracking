@@ -1,98 +1,63 @@
-import { Component, OnInit, ElementRef, ViewChild, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, ViewChild, inject, signal, computed, effect, OnDestroy, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import * as echarts from 'echarts';
+import * as echarts from 'echarts/core';
+import { GraphChart } from 'echarts/charts';
+import { TooltipComponent, LegendComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import { DataStore, Anime, posterUrl, malUrl } from '../../services/data-store';
 
-export interface AnimeGraphe {
-  id: number;
-  titre: string;
-  annee: number;
-  score: number;
-  episodes: number;
-  synopsis: string;
-  studios: string[];
-  genres: string[];
-  image_url: string;
-  large_image_url: string;
-}
+// Modular ECharts: only the graph chart is bundled, not the whole library.
+echarts.use([GraphChart, TooltipComponent, LegendComponent, CanvasRenderer]);
 
 @Component({
   selector: 'app-graphe',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './graphe.html',
-  styleUrl: './graphe.css'
+  styleUrl: './graphe.css',
 })
-export class GrapheComponent implements OnInit {
-  @ViewChild('conteneurGraphe', { static: true }) conteneurGraphe!: ElementRef;
-  
-  private http = inject(HttpClient);
-  private instanceGraphe: any;
-  private listeComplete: AnimeGraphe[] = [];
+export class GrapheComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('conteneurGraphe', { static: true }) conteneurGraphe!: ElementRef<HTMLDivElement>;
 
-  studiosDisponibles: string[] = [];
-  anneesDisponibles: number[] = [];
-  genresDisponibles: string[] = [];
-  
-  filtreStudio: string = 'Tous';
-  filtreAnnee: string = 'Toutes';
-  filtreGenre: string = 'Tous';
-  
-  termeRecherche: string = '';
-  limiteNoeuds: number = 50;
-  animeSelectionne: AnimeGraphe | null = null;
+  readonly store = inject(DataStore);
+  readonly posterUrl = posterUrl;
+  readonly malUrl = malUrl;
+  private chart: echarts.ECharts | null = null;
+  private resizeObserver: ResizeObserver | null = null;
 
-  ngOnInit(): void {
-    this.initialiserEcharts();
-    this.chargerDonnees();
-  }
+  filtreStudio = 'Tous';
+  filtreAnnee = 'Toutes';
+  filtreGenre = 'Tous';
+  termeRecherche = '';
+  limiteNoeuds = 50;
 
-  private chargerDonnees(): void {
-    this.http.get<AnimeGraphe[]>('assets/animes_graphe.json').subscribe({
-      next: (donnees) => {
-        this.listeComplete = donnees;
-        this.extraireFiltres(donnees);
-        this.dessinerGraphe();
-      },
-      error: (erreur) => {
-        console.error(erreur);
-      }
+  animeSelectionne: Anime | null = null;
+  readonly synopsis = signal('');
+
+  readonly anneesDisponibles = computed(() =>
+    [...new Set(this.store.animes().map((a) => a.year).filter((y) => y > 0))].sort((a, b) => b - a),
+  );
+
+  constructor() {
+    // Draw as soon as the dataset is available (and redraw if it changes).
+    effect(() => {
+      if (this.store.animes().length && this.chart) this.dessinerGraphe();
     });
   }
 
-  private extraireFiltres(donnees: AnimeGraphe[]): void {
-    const ensembleStudios = new Set<string>();
-    const ensembleAnnees = new Set<number>();
-    const ensembleGenres = new Set<string>();
-
-    donnees.forEach(anime => {
-      if (anime.annee) ensembleAnnees.add(anime.annee);
-      if (anime.studios) {
-        anime.studios.forEach(s => ensembleStudios.add(s));
-      }
-      if (anime.genres) {
-        anime.genres.forEach(g => ensembleGenres.add(g));
-      }
+  ngAfterViewInit(): void {
+    this.chart = echarts.init(this.conteneurGraphe.nativeElement);
+    this.chart.on('click', (p: any) => {
+      if (p.dataType === 'node') this.ouvrirDetails(p.data.anime as Anime);
     });
-
-    this.studiosDisponibles = Array.from(ensembleStudios).sort();
-    this.anneesDisponibles = Array.from(ensembleAnnees).sort((a, b) => b - a);
-    this.genresDisponibles = Array.from(ensembleGenres).sort();
+    this.resizeObserver = new ResizeObserver(() => this.chart?.resize());
+    this.resizeObserver.observe(this.conteneurGraphe.nativeElement);
+    if (this.store.animes().length) this.dessinerGraphe();
   }
 
-  private initialiserEcharts(): void {
-    this.instanceGraphe = echarts.init(this.conteneurGraphe.nativeElement);
-    
-    this.instanceGraphe.on('click', (parametres: any) => {
-      if (parametres.dataType === 'node') {
-        this.animeSelectionne = parametres.data.donneesOriginales;
-      }
-    });
-
-    window.addEventListener('resize', () => {
-      this.instanceGraphe.resize();
-    });
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+    this.chart?.dispose();
   }
 
   appliquerFiltres(): void {
@@ -100,149 +65,97 @@ export class GrapheComponent implements OnInit {
     this.dessinerGraphe();
   }
 
+  ouvrirDetails(anime: Anime): void {
+    this.animeSelectionne = anime;
+    this.synopsis.set('');
+    this.store.synopsis(anime.id).then((s) => {
+      if (this.animeSelectionne?.id === anime.id) this.synopsis.set(s || 'No synopsis available.');
+    });
+  }
+
   fermerDetails(): void {
     this.animeSelectionne = null;
   }
 
   private dessinerGraphe(): void {
-    /* Optimisation : Ne pas utiliser clear() ici pour permettre les animations fluides d'ECharts */
-    
+    if (!this.chart) return;
     const terme = this.termeRecherche.toLowerCase().trim();
 
-    let donneesFiltrees = this.listeComplete.filter(anime => {
-      let correspondStudio = this.filtreStudio === 'Tous' || (anime.studios && anime.studios.includes(this.filtreStudio));
-      let correspondAnnee = this.filtreAnnee === 'Toutes' || anime.annee === Number(this.filtreAnnee);
-      let correspondGenre = this.filtreGenre === 'Tous' || (anime.genres && anime.genres.includes(this.filtreGenre));
-      
-      /* Recherche plein texte avancee : Titre, Studio, ou Synopsis */
-      let correspondRecherche = true;
-      if (terme !== '') {
-        const dansTitre = anime.titre && anime.titre.toLowerCase().includes(terme);
-        const dansStudio = anime.studios && anime.studios.some(s => s.toLowerCase().includes(terme));
-        const dansSynopsis = anime.synopsis && anime.synopsis.toLowerCase().includes(terme);
-        
-        correspondRecherche = Boolean(dansTitre || dansStudio || dansSynopsis);
-      }
-      
-      return correspondStudio && correspondAnnee && correspondGenre && correspondRecherche;
-    });
-
-    const animesUniques = new Map<number, AnimeGraphe>();
-    donneesFiltrees.forEach(anime => {
-      if (anime.id) {
-        animesUniques.set(anime.id, anime);
-      }
-    });
-    
-    donneesFiltrees = Array.from(animesUniques.values()).slice(0, this.limiteNoeuds);
-
-    const noeuds: any[] = [];
-    const liens: any[] = [];
-    const ensembleCategories = new Set<string>();
-
-    donneesFiltrees.forEach(anime => {
-      const genrePrincipal = anime.genres && anime.genres.length > 0 ? anime.genres[0] : 'Unknown';
-      ensembleCategories.add(genrePrincipal);
-
-      // Convert nodes to display anime images instead of simple dots
-      noeuds.push({
-        id: anime.id.toString(),
-        name: anime.titre || 'Unknown',
-        value: anime.score || 0,
-        symbol: anime.image_url ? 'image://' + anime.image_url : 'circle',
-        symbolSize: (anime.score || 5) * 8, 
-        category: genrePrincipal,
-        donneesOriginales: anime,
-        itemStyle: {
-          shadowBlur: 15,
-          shadowColor: 'rgba(0, 0, 0, 0.15)'
+    const selection = this.store
+      .animes()
+      .filter((a) => {
+        if (this.filtreStudio !== 'Tous' && !a.studios.includes(this.filtreStudio)) return false;
+        if (this.filtreAnnee !== 'Toutes' && a.year !== Number(this.filtreAnnee)) return false;
+        if (this.filtreGenre !== 'Tous' && !a.genres.includes(this.filtreGenre)) return false;
+        if (terme) {
+          const hay = `${a.title} ${a.titleEn} ${a.studios.join(' ')}`.toLowerCase();
+          if (!hay.includes(terme)) return false;
         }
-      });
-    });
+        return true;
+      })
+      .slice(0, Math.min(this.limiteNoeuds, 300));
 
-    const categories = Array.from(ensembleCategories).map(nom => ({ name: nom }));
+    const categories = [...new Set(selection.map((a) => a.genres[0] ?? 'Unknown'))].map((name) => ({ name }));
+    const nodes = selection.map((a) => ({
+      id: String(a.id),
+      name: a.title,
+      value: a.score,
+      symbol: a.img ? 'image://' + posterUrl(a) : 'circle',
+      symbolSize: Math.max(20, (a.score || 5) * 8),
+      category: a.genres[0] ?? 'Unknown',
+      anime: a,
+    }));
 
-    for (let i = 0; i < donneesFiltrees.length; i++) {
-      for (let j = i + 1; j < donneesFiltrees.length; j++) {
-        const animeA = donneesFiltrees[i];
-        const animeB = donneesFiltrees[j];
-        
-        let lier = false;
-
-        if (animeA.studios && animeB.studios) {
-          const studioCommun = animeA.studios.find(s => animeB.studios.includes(s));
-          if (studioCommun) {
-            lier = true;
-          }
-        }
-
-        if (animeA.annee && animeB.annee && animeA.annee === animeB.annee) {
-          lier = true;
-        }
-        
-        if (lier) {
-          liens.push({
-            source: animeA.id.toString(),
-            target: animeB.id.toString(),
-            lineStyle: { width: 1.5, opacity: 0.4, curveness: 0.2 }
+    // An edge means "same studio", or "same year AND same main genre" — not merely the same year.
+    const links: { source: string; target: string; lineStyle: object }[] = [];
+    for (let i = 0; i < selection.length; i++) {
+      for (let j = i + 1; j < selection.length; j++) {
+        const a = selection[i];
+        const b = selection[j];
+        const studio = a.studios.some((s) => b.studios.includes(s));
+        const yearGenre = a.year > 0 && a.year === b.year && a.genres[0] && a.genres[0] === b.genres[0];
+        if (studio || yearGenre) {
+          links.push({
+            source: String(a.id),
+            target: String(b.id),
+            lineStyle: { width: studio ? 1.5 : 1, opacity: studio ? 0.45 : 0.2, curveness: 0.2 },
           });
         }
       }
     }
 
-    const options = {
-      backgroundColor: 'transparent',
-      /* Ajout des animations globales pour des transitions douces */
-      animationDurationUpdate: 1000,
-      animationEasingUpdate: 'quinticInOut',
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}'
-      },
-      legend: {
-        data: categories.map(c => c.name),
-        textStyle: { color: '#b3b3b3' },
-        top: '2%',
-        type: 'scroll'
-      },
-      series: [
-        {
-          type: 'graph',
-          layout: 'force',
-          data: noeuds,
-          links: liens,
-          categories: categories,
-          roam: true,
-          draggable: true,
-          label: {
-            show: true,
-            position: 'right',
-            formatter: '{b}',
-            color: '#e8e4d9', 
-            fontSize: 11,
-            fontWeight: 'bold',
-            textBorderColor: '#121a14', 
-            textBorderWidth: 2
+    this.chart.setOption(
+      {
+        backgroundColor: 'transparent',
+        animationDurationUpdate: 1000,
+        animationEasingUpdate: 'quinticInOut',
+        tooltip: { trigger: 'item', formatter: '{b}' },
+        legend: { data: categories.map((c) => c.name), textStyle: { color: '#b3b3b3' }, top: '2%', type: 'scroll' },
+        series: [
+          {
+            type: 'graph',
+            layout: 'force',
+            data: nodes,
+            links,
+            categories,
+            roam: true,
+            draggable: true,
+            label: {
+              show: true,
+              position: 'right',
+              formatter: '{b}',
+              color: '#e8e4d9',
+              fontSize: 11,
+              fontWeight: 'bold',
+              textBorderColor: '#121a14',
+              textBorderWidth: 2,
+            },
+            emphasis: { focus: 'adjacency', lineStyle: { width: 4 } },
+            force: { repulsion: 400, edgeLength: 150, gravity: 0.1, friction: 0.2, layoutAnimation: true },
           },
-          emphasis: {
-            focus: 'adjacency',
-            lineStyle: {
-              width: 4
-            }
-          },
-          force: {
-            repulsion: 400,
-            edgeLength: 150,
-            gravity: 0.1,
-            /* Amelioration de la stabilite physique */
-            friction: 0.2,
-            layoutAnimation: true
-          }
-        }
-      ]
-    };
-
-    /* Remplacement des donnees sans utiliser clear() pour animer le changement */
-    this.instanceGraphe.setOption(options, { notMerge: true });
+        ],
+      },
+      { notMerge: true },
+    );
   }
 }

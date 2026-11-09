@@ -1,90 +1,77 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { AnimeService, Anime } from '../../services/anime.service';
+import { Component, computed, inject, signal, HostListener } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { DataStore, Anime, posterUrl } from '../../services/data-store';
 import { AnimeCardComponent } from '../anime-card/anime-card';
-import { CommonModule } from '@angular/common';
-import { finalize } from 'rxjs/operators';
 import { RouletteComponent } from '../roulette/roulette';
+
+interface Mood {
+  icon: string;
+  label: string;
+  genre: string;
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AnimeCardComponent, CommonModule, RouletteComponent],
+  imports: [AnimeCardComponent, RouletteComponent, DatePipe],
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrl: './home.css',
 })
-export class HomeComponent implements OnInit {
-  private serviceAnime = inject(AnimeService);
-  
-  private listeComplete: Anime[] = [];
+export class HomeComponent {
+  readonly store = inject(DataStore);
+  readonly posterUrl = posterUrl;
 
-  /* Signaux pour la gestion de l'etat de la page */
-  chargementEnCours = signal(true);
-  messageErreur = signal(''); 
-
-  animeEnVedette = signal<Anime | null>(null);
-  listeAffichage = signal<Anime[]>([]);
-  indexActuel = signal(0);
-  readonly elementsParPage = 5;
-
-  humeurs = [
+  readonly moods: Mood[] = [
     { icon: '🔥', label: 'Action', genre: 'Action' },
-    { icon: '😭', label: 'Émotionnel', genre: 'Drama' },
-    { icon: '🤣', label: 'Drôle', genre: 'Comedy' },
-    { icon: '✨', label: 'Fantaisie', genre: 'Fantasy' },
+    { icon: '😭', label: 'Emotional', genre: 'Drama' },
+    { icon: '🤣', label: 'Funny', genre: 'Comedy' },
+    { icon: '✨', label: 'Fantasy', genre: 'Fantasy' },
     { icon: '🚀', label: 'Sci-Fi', genre: 'Sci-Fi' },
-    { icon: '🔄', label: 'Tout', genre: 'All' }
+    { icon: '🔄', label: 'All', genre: 'All' },
   ];
-  humeurSelectionnee = signal('All');
+  readonly selectedMood = signal('All');
+  readonly index = signal(0);
+  readonly perPage = signal(this.computePerPage());
 
-  ngOnInit() {
-    this.chargementEnCours.set(true);
-    this.messageErreur.set(''); 
+  /** Ranked, scored anime only: the carousel shows the best of each mood. */
+  private readonly ranked = computed(() =>
+    this.store
+      .animes()
+      .filter((a) => a.score > 0)
+      .sort((a, b) => (a.rank || 1e9) - (b.rank || 1e9) || b.score - a.score),
+  );
 
-    this.serviceAnime.getTopAnime()
-      .pipe(
-        finalize(() => {
-          this.chargementEnCours.set(false);
-        })
-      )
-      .subscribe({
-        next: (donnees) => {
-          const donneesTriees = donnees.sort((a, b) => a.rank - b.rank);
-          this.listeComplete = donneesTriees;
-          if (donneesTriees.length > 0) {
-            this.animeEnVedette.set(donneesTriees[0]);
-          }
-          this.listeAffichage.set(donneesTriees);
-        },
-        error: (erreur) => {
-          console.error('Erreur de lecture du fichier local:', erreur);
-          this.messageErreur.set(`Impossible de charger le fichier JSON local.`);
-        }
-      });
+  readonly hero = computed<Anime | null>(() => this.ranked()[0] ?? null);
+
+  readonly list = computed(() => {
+    const mood = this.selectedMood();
+    const all = this.ranked();
+    return (mood === 'All' ? all : all.filter((a) => a.genres.includes(mood))).slice(0, 60);
+  });
+
+  readonly maxIndex = computed(() => Math.max(0, this.list().length - this.perPage()));
+
+  @HostListener('window:resize')
+  onResize() {
+    this.perPage.set(this.computePerPage());
+    this.index.update((i) => Math.min(i, this.maxIndex()));
   }
 
-  filtrerParHumeur(genreHumeur: string) {
-    this.humeurSelectionnee.set(genreHumeur);
-    this.indexActuel.set(0); 
-
-    if (genreHumeur === 'All') {
-      this.listeAffichage.set(this.listeComplete);
-    } else {
-      const filtres = this.listeComplete.filter(anime => 
-        anime.genres && anime.genres.includes(genreHumeur)
-      );
-      this.listeAffichage.set(filtres);
-    }
+  private computePerPage(): number {
+    const w = typeof window === 'undefined' ? 1200 : window.innerWidth;
+    return w < 560 ? 2 : w < 820 ? 3 : w < 1100 ? 4 : 5;
   }
 
-  diapositiveSuivante() {
-    if (this.indexActuel() < this.listeAffichage().length - this.elementsParPage) {
-      this.indexActuel.update(v => v + 1);
-    }
+  selectMood(genre: string) {
+    this.selectedMood.set(genre);
+    this.index.set(0);
   }
 
-  diapositivePrecedente() {
-    if (this.indexActuel() > 0) {
-      this.indexActuel.update(v => v - 1);
-    }
+  next() {
+    this.index.update((i) => Math.min(i + this.perPage(), this.maxIndex()));
+  }
+
+  prev() {
+    this.index.update((i) => Math.max(0, i - this.perPage()));
   }
 }

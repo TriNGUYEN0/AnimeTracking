@@ -332,3 +332,11 @@
     height: 250px;
   }
 }
+.destiny-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.destiny-title a:hover {
+  text-decoration: underline;
+}

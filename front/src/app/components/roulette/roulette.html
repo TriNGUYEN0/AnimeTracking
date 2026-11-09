@@ -1,21 +1,17 @@
 <div class="roulette-container">
-  
-  @if (animationState() === 'idle') {
+
+  @if (state() === 'idle') {
     <div class="interaction-zone">
-      <h3 class="instruction-text">Hmm...don't know what to watch?</h3>
+      <h3 class="instruction-text">Hmm... don't know what to watch?</h3>
       <p class="sub-instruction">Shake the traditional Omikuji box to find your next anime.</p>
-      
       <div class="omikuji-box">
         <div class="box-label">御<br>神<br>籤</div>
       </div>
-      
-      <button class="btn-draw" (click)="drawOmikuji()">
-        Shake Omikuji
-      </button>
+      <button class="btn-draw" (click)="draw()">Shake Omikuji</button>
     </div>
   }
 
-  @if (animationState() === 'shaking') {
+  @if (state() === 'shaking') {
     <div class="interaction-zone">
       <div class="omikuji-box shaking-animation">
         <div class="box-label">御<br>神<br>籤</div>
@@ -25,37 +21,38 @@
     </div>
   }
 
-  @if (animationState() === 'revealed' && selectedAnime()) {
-    <div class="omikuji-paper">
-      
-      <div class="paper-left">
-        <img [src]="selectedAnime()?.image_url" [alt]="selectedAnime()?.titre" class="destiny-image" />
-      </div>
-
-      <div class="paper-right">
-        <div class="fortune-header">
-          <span class="fortune-text">Great Blessing (大吉)</span>
+  @if (state() === 'revealed') {
+    @if (selected(); as a) {
+      <div class="omikuji-paper">
+        <div class="paper-left">
+          <img [src]="posterUrl(a, true)" [alt]="a.title" class="destiny-image" />
         </div>
 
-        <h3 class="destiny-title">{{ selectedAnime()?.titre }}</h3>
-
-        <div class="destiny-meta">
-          <span class="score">⭐ Score: {{ selectedAnime()?.score }}</span>
-          <div class="genres">
-            @for (genre of selectedAnime()?.genres; track genre) {
-              <span class="genre-badge">{{ genre }}</span>
-            }
+        <div class="paper-right">
+          <div class="fortune-header">
+            <span class="fortune-text">{{ fortune()?.label }} ({{ fortune()?.kanji }})</span>
           </div>
-        </div>
 
-        <div class="destiny-description">
-          <p>{{ selectedAnime()?.synopsis || 'No description available for this anime.' }}</p>
-        </div>
+          <h3 class="destiny-title">
+            <a [href]="malUrl(a)" target="_blank" rel="noopener">{{ a.title }}</a>
+          </h3>
 
-        <button class="btn-reset" (click)="resetDraw()">Draw Again</button>
+          <div class="destiny-meta">
+            <span class="score">⭐ Score: {{ a.score }}</span>
+            <div class="genres">
+              @for (genre of a.genres; track genre) {
+                <span class="genre-badge">{{ genre }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="destiny-description">
+            <p>{{ synopsis() || 'No description available for this anime.' }}</p>
+          </div>
+
+          <button class="btn-reset" (click)="reset()">Draw Again</button>
+        </div>
       </div>
-
-    </div>
+    }
   }
-
 </div>

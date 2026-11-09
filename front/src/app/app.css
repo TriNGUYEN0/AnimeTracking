@@ -40,3 +40,22 @@ nav a.active {
   color: var(--accent-color);
   border-bottom: 2px solid var(--accent-color);
 }
+.site-footer {
+  text-align: center;
+  padding: 28px 16px 36px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border-top: 1px solid #262626;
+  margin-top: 40px;
+}
+
+.site-footer a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+@media (max-width: 600px) {
+  header { padding: 0.8rem 1rem; gap: 12px; }
+  h1 { font-size: 1.15rem; }
+  nav { gap: 12px; font-size: 0.9rem; }
+}

@@ -1,31 +1,31 @@
-<div class="card">
-  <div class="rank">#{{ anime.rank }}</div>
-  
+<div class="card" (mouseenter)="loadSynopsis()" (focusin)="loadSynopsis()" tabindex="0">
+  @if (anime.rank) {
+    <div class="rank">#{{ anime.rank }}</div>
+  }
+
   <div class="image-container">
-    <img [src]="anime.image_url" [alt]="anime.title" loading="lazy" />
+    <img [src]="posterUrl(anime)" [alt]="anime.title" loading="lazy" width="225" height="320" />
     <div class="overlay">
-      <p class="synopsis">{{ anime.synopsis || 'Aucun synopsis disponible.' }}</p>
+      <p class="synopsis">{{ synopsis() || 'Loading synopsis…' }}</p>
     </div>
   </div>
 
   <div class="info">
     <div class="header">
-      <h3 [title]="anime.title">{{ anime.title || 'Titre inconnu' }}</h3>
-      <span class="score">⭐ {{ anime.score || 0 }}</span>
+      <h3 [title]="anime.title">{{ anime.title || 'Unknown title' }}</h3>
+      <span class="score">⭐ {{ anime.score || '–' }}</span>
     </div>
-    
+
     <div class="meta">
       <span>📅 {{ anime.year || 'N/A' }}</span>
       <span>📺 {{ anime.episodes || '?' }} EPS</span>
     </div>
 
     <div class="genres">
-      @if (anime.genres && anime.genres.length > 0) {
-        @for (genre of anime.genres.slice(0, 3); track $index) {
-          <span class="badge">{{ genre }}</span>
-        }
-      } @else {
-        <span class="badge">Inconnu</span>
+      @for (genre of anime.genres.slice(0, 3); track genre) {
+        <span class="badge">{{ genre }}</span>
+      } @empty {
+        <span class="badge">Unknown</span>
       }
     </div>
   </div>

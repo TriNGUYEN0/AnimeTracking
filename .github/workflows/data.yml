@@ -1,0 +1,72 @@
+name: data
+
+# Refreshes front/public/data from the Jikan API, commits it, then redeploys the site.
+#  - every day: currently airing anime + broadcast schedule (~20 requests)
+#  - Mondays, manual runs and pipeline changes: the whole SFW catalogue too (~1,100 requests, ~20 min)
+# Jikan allows 60 requests/minute; the crawler stays at ~55. If Jikan is down, nothing is committed.
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['pipeline/**', '.github/workflows/data.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r pipeline/requirements.txt
+
+      - name: Crawl Jikan
+        run: |
+          ARGS="--airing"
+          if [ "${{ github.event_name }}" != "schedule" ] || [ "$(date -u +%u)" = "1" ]; then
+            ARGS="$ARGS --catalogue"
+          fi
+          set +e
+          python pipeline/crawl.py $ARGS
+          code=$?
+          if [ $code -eq 2 ]; then
+            echo "::warning::Jikan unreachable, previous data kept"
+            exit 0
+          fi
+          exit $code
+
+      - name: Commit data
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add front/public/data
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "data: refresh $(date -u +%F)"
+            git pull --rebase origin main
+            git push origin HEAD:main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    needs: crawl
+    if: needs.crawl.outputs.changed == 'true'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: write

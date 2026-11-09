@@ -1,22 +1,16 @@
 <div class="home-container">
 
-  @if (chargementEnCours()) {
+  @if (store.loading()) {
     <div class="ecran-chargement">
       <div class="animation-ramen">
         <div class="vapeur v1"></div>
         <div class="vapeur v2"></div>
         <div class="vapeur v3"></div>
-
         <div class="garnitures">
           <div class="algue"></div>
-          <div class="oeuf">
-            <div class="jaune-oeuf"></div>
-          </div>
-          <div class="narutomaki">
-            <div class="spirale"></div>
-          </div>
+          <div class="oeuf"><div class="jaune-oeuf"></div></div>
+          <div class="narutomaki"><div class="spirale"></div></div>
         </div>
-
         <div class="baguettes"></div>
         <div class="bol"></div>
       </div>
@@ -24,30 +18,30 @@
     </div>
   }
 
-  @if (messageErreur()) {
+  @if (store.error()) {
     <div class="error-container">
-      <h3>⚠️ Oups!</h3>
-      <p>{{ messageErreur() }}</p>
-      <p>Vérifiez que le fichier animes_graphe.json est bien présent dans le dossier assets.</p>
+      <h3>⚠️ Oops!</h3>
+      <p>{{ store.error() }}</p>
     </div>
   }
-  
-  @if (animeEnVedette(); as hero) {
-    <div class="hero-section" [style.backgroundImage]="'url(' + (hero.large_image_url || hero.image_url) + ')'">      
+
+  @if (hero(); as h) {
+    <div class="hero-section" [style.backgroundImage]="'url(' + posterUrl(h, true) + ')'">
       <div class="hero-overlay">
         <div class="hero-content">
           <p class="intro-projet">
-            Projet personnel utilisant des données extraites depuis API Jinkan pour afficher les tendances et statistiques des animes. <br>
-            Tri NGUYEN <br>
-            Dernière mise à jour : 13 May 2026
+            Personal project exploring anime trends and statistics with data from MyAnimeList, via the Jikan API.<br>
+            Tri NGUYEN<br>
+            @if (store.meta(); as m) {
+              Data updated: {{ m.updatedAt | date: 'd MMM y' }} · {{ m.count.toLocaleString('en-US') }} anime
+            }
           </p>
-
-          <span class="hero-rank">#1 Tendance</span>  
-          <h1>{{ hero.title }}</h1>
+          <span class="hero-rank">#{{ h.rank || 1 }} on MyAnimeList</span>
+          <h1>{{ h.title }}</h1>
           <div class="hero-meta">
-            <span class="score">⭐ {{ hero.score }}</span>
-            <span>{{ hero.year || 'N/A' }}</span>
-            <span>{{ hero.episodes || '?' }} Épisodes</span>
+            <span class="score">⭐ {{ h.score }}</span>
+            <span>{{ h.year || 'N/A' }}</span>
+            <span>{{ h.episodes || '?' }} episodes</span>
           </div>
         </div>
       </div>
@@ -58,12 +52,10 @@
     <div class="mood-section">
       <h3>What's your mood today?</h3>
       <div class="mood-buttons">
-        @for (humeur of humeurs; track humeur.label) {
-          <button 
-            [class.active]="humeurSelectionnee() === humeur.genre"
-            (click)="filtrerParHumeur(humeur.genre)">
-            <span class="mood-icon">{{ humeur.icon }}</span>
-            {{ humeur.label }}
+        @for (m of moods; track m.genre) {
+          <button [class.active]="selectedMood() === m.genre" (click)="selectMood(m.genre)">
+            <span class="mood-icon">{{ m.icon }}</span>
+            {{ m.label }}
           </button>
         }
       </div>
@@ -72,29 +64,24 @@
     <div class="carousel-section">
       <div class="section-header">
         <h2>
-          @if(humeurSelectionnee() === 'All') { Top Animes } 
-          @else { Top {{ humeurSelectionnee() }} }
+          @if (selectedMood() === 'All') { Top Anime } @else { Top {{ selectedMood() }} }
         </h2>
         <div class="nav-controls">
-          <button class="nav-btn" (click)="diapositivePrecedente()" [disabled]="indexActuel() === 0">❮</button>
-          <button class="nav-btn" (click)="diapositiveSuivante()" [disabled]="indexActuel() >= listeAffichage().length - elementsParPage">❯</button>
+          <button class="nav-btn" aria-label="Previous" (click)="prev()" [disabled]="index() === 0">❮</button>
+          <button class="nav-btn" aria-label="Next" (click)="next()" [disabled]="index() >= maxIndex()">❯</button>
         </div>
       </div>
-      
+
       <div class="carousel-window">
-        <div class="carousel-track" 
-             [style.transform]="'translateX(-' + (indexActuel() * (100 / elementsParPage)) + '%)'">
-          
-          @for (anime of listeAffichage(); track anime.rank) {
-            <div class="carousel-item" [style.flex-basis.%]="100 / elementsParPage">
+        <div class="carousel-track" [style.transform]="'translateX(-' + index() * (100 / perPage()) + '%)'">
+          @for (anime of list(); track anime.id) {
+            <div class="carousel-item" [style.flex-basis.%]="100 / perPage()">
               <app-anime-card [anime]="anime" />
             </div>
           }
-          
-          @if (listeAffichage().length === 0) {
-            <div class="empty-state">Aucun anime trouvé pour cette humeur 😔</div>
+          @if (!store.loading() && list().length === 0) {
+            <div class="empty-state">No anime found for this mood 😔</div>
           }
-
         </div>
       </div>
     </div>
@@ -103,5 +90,4 @@
   <div class="section-roulette-bas">
     <app-roulette></app-roulette>
   </div>
-  
 </div>
