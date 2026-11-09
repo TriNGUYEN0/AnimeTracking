@@ -50,7 +50,8 @@ class Jikan:
             if r is not None and r.headers.get("Retry-After", "").isdigit():
                 retry_after = int(r.headers["Retry-After"])
             time.sleep(max(retry_after, 2 ** attempt + random.random()))
-        raise RuntimeError(f"giving up on {path} {params}")
+        # Only retryable errors (network, 429, 5xx) reach this point: treat as "API unavailable".
+        raise JikanDown(f"giving up on {path} {params} after {tries} attempts")
 
     def paged(self, path, params=None, max_pages=10_000):
         params = dict(params or {})

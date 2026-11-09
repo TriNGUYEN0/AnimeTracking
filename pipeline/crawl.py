@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import sys
+from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from export import slim, write_airing, write_catalogue  # noqa: E402
@@ -40,10 +41,23 @@ def from_legacy(path):
     return records
 
 
+def catalogue_is_stale(out, days):
+    path = os.path.join(out, "meta.json")
+    if not os.path.exists(path):
+        return True
+    meta = json.load(open(path, encoding="utf-8"))
+    if meta.get("source") != "jikan":
+        return True
+    updated = datetime.fromisoformat(meta["updatedAt"])
+    return datetime.now(timezone.utc) - updated > timedelta(days=days)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--airing", action="store_true")
     ap.add_argument("--catalogue", action="store_true")
+    ap.add_argument("--catalogue-if-stale", type=float, metavar="DAYS",
+                    help="crawl the catalogue only if it was never crawled from Jikan or is older than DAYS")
     ap.add_argument("--from-legacy")
     ap.add_argument("--out", default=OUT)
     args = ap.parse_args()
@@ -54,17 +68,19 @@ def main():
         print(f"legacy -> {n} anime")
         return 0
 
+    do_catalogue = args.catalogue or (args.catalogue_if_stale is not None
+                                      and catalogue_is_stale(out, args.catalogue_if_stale))
     jk = Jikan()
     try:
-        if args.catalogue:
+        if args.airing:  # small and most time-sensitive: first
+            recs = [slim(a) for a in jk.paged("/schedules", {"sfw": "true", "limit": 25}, max_pages=40)]
+            n = write_airing(recs, out)
+            print(f"airing -> {n} anime ({jk.calls} requests)")
+        if do_catalogue:
             params = {"order_by": "mal_id", "sort": "asc", "sfw": "true", "limit": 25}
             recs = [slim(a) for a in jk.paged("/anime", params)]
             n = write_catalogue(recs, out, "jikan")
             print(f"catalogue -> {n} anime ({jk.calls} requests)")
-        if args.airing:
-            recs = [slim(a) for a in jk.paged("/schedules", {"sfw": "true", "limit": 25}, max_pages=40)]
-            n = write_airing(recs, out)
-            print(f"airing -> {n} anime ({jk.calls} requests)")
     except JikanDown as exc:
         print(f"Jikan unavailable, keeping previous data: {exc}", file=sys.stderr)
         return 2

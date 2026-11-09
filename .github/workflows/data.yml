@@ -1,12 +1,13 @@
 name: data
 
 # Refreshes front/public/data from the Jikan API, commits it, then redeploys the site.
-#  - every day: currently airing anime + broadcast schedule (~20 requests)
-#  - Mondays, manual runs and pipeline changes: the whole SFW catalogue too (~1,100 requests, ~20 min)
+#  - every 6 hours: currently airing anime + broadcast schedule (~20 requests)
+#  - whenever the catalogue was never crawled from Jikan or is older than 7 days:
+#    the whole SFW catalogue too (~1,100 requests, ~20 min)
 # Jikan allows 60 requests/minute; the crawler stays at ~55. If Jikan is down, nothing is committed.
 on:
   schedule:
-    - cron: '17 3 * * *'
+    - cron: '17 */6 * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -36,12 +37,8 @@ jobs:
 
       - name: Crawl Jikan
         run: |
-          ARGS="--airing"
-          if [ "${{ github.event_name }}" != "schedule" ] || [ "$(date -u +%u)" = "1" ]; then
-            ARGS="$ARGS --catalogue"
-          fi
           set +e
-          python pipeline/crawl.py $ARGS
+          python pipeline/crawl.py --airing --catalogue-if-stale 7
           code=$?
           if [ $code -eq 2 ]; then
             echo "::warning::Jikan unreachable, previous data kept"
