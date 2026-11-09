@@ -109,6 +109,22 @@
       }
     </div>
 
+    @if (heat(); as hm) {
+      <section class="panel">
+        <h2>Episode heatmap <span class="verdict">{{ hm.cells.length }} episodes</span></h2>
+        <div class="heat">
+          @for (e of hm.cells; track e.mal_id) {
+            <span class="ep" [class.filler]="e.filler || e.recap" [style.background]="e.filler || e.recap ? null : e.color"
+                  [title]="'Ep ' + e.mal_id + ': ' + e.title + (e.score ? ' · ' + e.score + '/5' : '') + (e.filler ? ' · filler' : '') + (e.recap ? ' · recap' : '')"></span>
+          }
+        </div>
+        <p class="heat-legend">Low <i class="ramp"></i> High (user scores {{ hm.min }}–{{ hm.max }}/5) · <i class="hatch"></i> filler / recap</p>
+        <p class="heat-note">Best: @for (b of hm.best; track b.mal_id) { <b>Ep {{ b.mal_id }}</b> “{{ b.title }}” ({{ b.score }}) } 
+          @if (hm.fillers.length) { · <b>{{ hm.fillers.length }}</b> filler/recap episodes you can skip }</p>
+        @if (episodesMore()) { <button class="btn" (click)="moreEpisodes()">Load next 100 episodes</button> }
+      </section>
+    }
+
     @if (mainCharacters().length) {
       <section class="panel">
         <h2>Characters &amp; Japanese voices</h2>

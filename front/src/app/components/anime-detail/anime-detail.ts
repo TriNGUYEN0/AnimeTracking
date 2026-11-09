@@ -45,6 +45,8 @@ interface Stats {
   watching: number; completed: number; on_hold: number; dropped: number; plan_to_watch: number; total: number;
   scores: { score: number; votes: number; percentage: number }[];
 }
+interface Episode { mal_id: number; title: string; score: number | null; filler: boolean; recap: boolean; aired: string | null }
+interface EpisodePage { data: Episode[]; pagination: { has_next_page: boolean; last_visible_page: number } }
 interface Reco { entry: { mal_id: number; title: string; images: { webp?: { image_url: string }; jpg: { image_url: string } } }; votes: number }
 
 @Component({
@@ -68,6 +70,9 @@ export class AnimeDetailComponent {
   readonly characters = signal<CharacterRole[]>([]);
   readonly stats = signal<Stats | null>(null);
   readonly recos = signal<Reco[]>([]);
+  readonly episodes = signal<Episode[]>([]);
+  readonly episodesMore = signal(false);
+  private episodePage = 1;
   readonly live = signal<'loading' | 'ok' | 'down'>('loading');
   readonly trailerOn = signal(false);
   readonly tracker = inject(Tracker);
@@ -114,6 +119,23 @@ export class AnimeDetailComponent {
     };
   });
 
+  /** Per-episode user scores (1-5) as a colour scale stretched to this show's own min..max. */
+  readonly heat = computed(() => {
+    const eps = this.episodes();
+    const scored = eps.filter((e) => e.score);
+    if (scored.length < 3) return null;
+    const min = Math.min(...scored.map((e) => e.score!));
+    const max = Math.max(...scored.map((e) => e.score!));
+    const ramp = ['#2b2347', '#3d2c74', '#5b3fb0', '#8a68e6', '#b18cff', '#e2b8ff', '#ffd36b'];
+    const cells = eps.map((e) => {
+      const t = e.score && max > min ? (e.score - min) / (max - min) : 0.5;
+      return { ...e, color: e.score ? ramp[Math.round(t * (ramp.length - 1))] : '#262626' };
+    });
+    const best = [...scored].sort((a, b) => b.score! - a.score!).slice(0, 3);
+    const fillers = eps.filter((e) => e.filler || e.recap);
+    return { cells, min, max, best, fillers };
+  });
+
   readonly mainCharacters = computed(() =>
     [...this.characters()].sort((a, b) => (a.role === 'Main' ? 0 : 1) - (b.role === 'Main' ? 0 : 1)).slice(0, 12),
   );
@@ -140,6 +162,16 @@ export class AnimeDetailComponent {
     this.tracker.remove(this.id());
   }
 
+  /** Long shows: 100 episodes per page, fetched on demand through the rate-limited queue. */
+  async moreEpisodes() {
+    const id = this.id();
+    this.episodePage++;
+    const r = await this.jikan.get<EpisodePage>(`/anime/${id}/episodes?page=${this.episodePage}`);
+    if (this.id() !== id) return;
+    this.episodes.update((e) => [...e, ...r.data]);
+    this.episodesMore.set(r.pagination.has_next_page);
+  }
+
   japaneseVoice(c: CharacterRole): string {
     return c.voice_actors.find((v) => v.language === 'Japanese')?.person.name ?? '';
   }
@@ -163,6 +195,9 @@ export class AnimeDetailComponent {
     this.characters.set([]);
     this.stats.set(null);
     this.recos.set([]);
+    this.episodes.set([]);
+    this.episodesMore.set(false);
+    this.episodePage = 1;
     this.trailerOn.set(false);
     this.live.set('loading');
     window.scrollTo({ top: 0 });
@@ -179,6 +214,11 @@ export class AnimeDetailComponent {
       this.jikan.get<{ data: Stats }>(`/anime/${id}/statistics`).then((r) => this.id() === id && this.stats.set(r.data)),
       this.jikan.get<{ data: CharacterRole[] }>(`/anime/${id}/characters`).then((r) => this.id() === id && this.characters.set(r.data)),
       this.jikan.get<{ data: Reco[] }>(`/anime/${id}/recommendations`).then((r) => this.id() === id && this.recos.set(r.data.slice(0, 10))),
+      this.jikan.get<EpisodePage>(`/anime/${id}/episodes`).then((r) => {
+        if (this.id() !== id) return;
+        this.episodes.set(r.data);
+        this.episodesMore.set(r.pagination.has_next_page);
+      }),
     ];
     const results = await Promise.allSettled(parts);
     if (this.id() === id) this.live.set(results.some((r) => r.status === 'fulfilled') ? 'ok' : 'down');
