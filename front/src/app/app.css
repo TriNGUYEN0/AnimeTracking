@@ -23,6 +23,12 @@ h1 {
 nav {
   display: flex;
   gap: 20px;
+  align-items: center;
+}
+
+h1 a {
+  color: inherit;
+  text-decoration: none;
 }
 
 nav a {

@@ -1,9 +1,11 @@
 import { Component, Input, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataStore, Anime, posterUrl } from '../../services/data-store';
 
 @Component({
   selector: 'app-anime-card',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './anime-card.html',
   styleUrl: './anime-card.css',
 })

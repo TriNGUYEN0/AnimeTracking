@@ -1,7 +1,8 @@
 <div class="app-layout">
   <header>
-    <h1>Anime Tracking</h1>
+    <h1><a routerLink="/">Anime Tracking</a></h1>
     <nav>
+      <app-search />
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
       <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
       <a routerLink="/graphe" routerLinkActive="active">Graph</a>

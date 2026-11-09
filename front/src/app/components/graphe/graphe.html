@@ -54,7 +54,7 @@
       
       <img [src]="posterUrl(animeSelectionne, true)" [alt]="animeSelectionne.title" />
       
-      <h3><a [href]="malUrl(animeSelectionne)" target="_blank" rel="noopener">{{ animeSelectionne.title }}</a></h3>
+      <h3><a [routerLink]="['/anime', animeSelectionne.id]">{{ animeSelectionne.title }}</a></h3>
       
       <div class="info-meta">
         <span class="score">⭐ {{ animeSelectionne.score || 'N/A' }}</span>

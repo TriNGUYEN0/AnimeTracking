@@ -1,4 +1,6 @@
 .card {
+  text-decoration: none;
+  color: inherit;
   background-color: var(--card-bg);
   border-radius: 12px;
   overflow: hidden;

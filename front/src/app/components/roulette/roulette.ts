@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataStore, Anime, posterUrl, malUrl } from '../../services/data-store';
 
 interface Fortune {
@@ -17,6 +18,7 @@ function fortuneOf(score: number): Fortune {
 @Component({
   selector: 'app-roulette',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './roulette.html',
   styleUrl: './roulette.css',
 })

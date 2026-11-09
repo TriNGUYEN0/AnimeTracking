@@ -34,7 +34,7 @@
           </div>
 
           <h3 class="destiny-title">
-            <a [href]="malUrl(a)" target="_blank" rel="noopener">{{ a.title }}</a>
+            <a [routerLink]="['/anime', a.id]">{{ a.title }}</a>
           </h3>
 
           <div class="destiny-meta">

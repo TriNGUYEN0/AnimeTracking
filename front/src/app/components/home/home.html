@@ -37,7 +37,7 @@
             }
           </p>
           <span class="hero-rank">#{{ h.rank || 1 }} on MyAnimeList</span>
-          <h1>{{ h.title }}</h1>
+          <h1><a class="hero-link" [routerLink]="['/anime', h.id]">{{ h.title }}</a></h1>
           <div class="hero-meta">
             <span class="score">⭐ {{ h.score }}</span>
             <span>{{ h.year || 'N/A' }}</span>

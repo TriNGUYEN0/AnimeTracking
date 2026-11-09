@@ -1,0 +1,32 @@
+<button class="search-trigger" (click)="show()" aria-label="Search anime">
+  <span>⌕ Search</span><kbd>/</kbd>
+</button>
+
+@if (open()) {
+  <div class="backdrop" (click)="close()"></div>
+  <div class="palette" role="dialog" aria-label="Search anime">
+    <div class="input-row">
+      <span class="icon">⌕</span>
+      <input #box type="text" placeholder="Search 20,000+ anime… (typos are fine)" [value]="query()"
+             (input)="onInput(box.value)" autocomplete="off" spellcheck="false" />
+      <kbd>ESC</kbd>
+    </div>
+    @if (results().length) {
+      <ul>
+        @for (a of results(); track a.id; let i = $index) {
+          <li [class.on]="i === active()" (mouseenter)="active.set(i)" (click)="go(a)">
+            <img [src]="posterUrl(a)" [alt]="a.title" loading="lazy" />
+            <div>
+              <b>{{ a.title }}</b>
+              <small>{{ a.titleEn ? a.titleEn + ' · ' : '' }}{{ a.year || '—' }} · ⭐ {{ a.score || '—' }}</small>
+            </div>
+          </li>
+        }
+      </ul>
+    } @else if (query().length >= 2) {
+      <p class="empty">No match. Try another spelling.</p>
+    } @else {
+      <p class="empty">Type a title: “frieren”, “steins”, “one pie”…</p>
+    }
+  </div>
+}

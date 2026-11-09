@@ -1,10 +1,10 @@
-<div class="card" (mouseenter)="loadSynopsis()" (focusin)="loadSynopsis()" tabindex="0">
+<a class="card" [routerLink]="['/anime', anime.id]" (mouseenter)="loadSynopsis()" (focusin)="loadSynopsis()">
   @if (anime.rank) {
     <div class="rank">#{{ anime.rank }}</div>
   }
 
   <div class="image-container">
-    <img [src]="posterUrl(anime)" [alt]="anime.title" loading="lazy" width="225" height="320" />
+    <img [src]="posterUrl(anime)" [alt]="anime.title" loading="lazy" width="225" height="320" [style.view-transition-name]="'poster-' + anime.id" />
     <div class="overlay">
       <p class="synopsis">{{ synopsis() || 'Loading synopsis…' }}</p>
     </div>
@@ -29,4 +29,4 @@
       }
     </div>
   </div>
-</div>
+</a>

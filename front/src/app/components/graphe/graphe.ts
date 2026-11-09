@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, inject, signal, computed, effect, OnDestroy, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import * as echarts from 'echarts/core';
 import { GraphChart } from 'echarts/charts';
 import { TooltipComponent, LegendComponent } from 'echarts/components';
@@ -12,7 +13,7 @@ echarts.use([GraphChart, TooltipComponent, LegendComponent, CanvasRenderer]);
 @Component({
   selector: 'app-graphe',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './graphe.html',
   styleUrl: './graphe.css',
 })

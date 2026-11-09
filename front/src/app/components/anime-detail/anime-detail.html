@@ -1,0 +1,148 @@
+@if (header(); as h) {
+  <section class="detail-hero" [style.--poster]="'url(' + h.poster + ')'">
+    <div class="hero-inner">
+      <img class="poster" [src]="h.poster" [alt]="h.title" width="225" height="320" [style.view-transition-name]="'poster-' + h.id" />
+      <div class="hero-text">
+        @if (h.rank) { <span class="pill">#{{ h.rank }} on MyAnimeList</span> }
+        <h1>{{ h.title }}</h1>
+        @if (h.titleEn && h.titleEn !== h.title) { <p class="alt-title">{{ h.titleEn }}</p> }
+        @if (full()?.title_japanese) { <p class="alt-title jp">{{ full()?.title_japanese }}</p> }
+
+        <div class="facts">
+          @if (h.score) { <span>⭐ <b>{{ h.score }}</b></span> }
+          @if (h.year) { <span>📅 {{ h.year }}</span> }
+          <span>📺 {{ h.episodes || '?' }} eps</span>
+          @if (h.type) { <span>{{ h.type }}</span> }
+          @if (full()?.members; as m) { <span>👥 {{ m | number }} members</span> }
+        </div>
+
+        <div class="tags">
+          @for (g of h.genres; track g) { <span class="tag">{{ g }}</span> }
+          @for (t of h.themes; track t) { <span class="tag theme">{{ t }}</span> }
+        </div>
+        @if (h.studios.length) { <p class="studios">Studio: {{ h.studios.join(', ') }}</p> }
+
+        <div class="actions">
+          @if (trailerUrl()) { <button class="btn primary" (click)="trailerOn.set(true)">▶ Watch trailer</button> }
+          <a class="btn" [href]="malUrl(h)" target="_blank" rel="noopener">MyAnimeList ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="detail-body">
+    @if (live() === 'loading') { <p class="live-note">Fetching live details from Jikan…</p> }
+    @if (live() === 'down') {
+      <p class="live-note warn">The Jikan API is not responding right now — showing the offline snapshot only.</p>
+    }
+
+    @if (trailerOn() && trailerUrl()) {
+      <div class="trailer">
+        <iframe [src]="trailerUrl()" title="Trailer" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    }
+
+    <div class="grid">
+      <section class="panel wide">
+        <h2>Synopsis</h2>
+        <p class="synopsis">{{ synopsis() || 'No synopsis available.' }}</p>
+        @if (full(); as f) {
+          <dl class="meta">
+            @if (f.aired?.string) { <dt>Aired</dt><dd>{{ f.aired?.string }}</dd> }
+            @if (f.status) { <dt>Status</dt><dd>{{ f.status }}</dd> }
+            @if (f.source) { <dt>Source</dt><dd>{{ f.source }}</dd> }
+            @if (f.duration) { <dt>Duration</dt><dd>{{ f.duration }}</dd> }
+            @if (f.rating) { <dt>Rating</dt><dd>{{ f.rating }}</dd> }
+          </dl>
+        }
+      </section>
+
+      @if (dna(); as d) {
+        <section class="panel">
+          <h2>Score DNA <span class="verdict">{{ d.verdict }}</span></h2>
+          <div class="histo" role="img" aria-label="Distribution of user scores from 1 to 10">
+            @for (b of d.bars; track b.score) {
+              <div class="col" [title]="b.score + ': ' + b.pct + '%'">
+                <div class="bar" [class.low]="b.score <= 4" [style.height.%]="b.h"></div>
+                <span>{{ b.score }}</span>
+              </div>
+            }
+          </div>
+          <div class="dna-stats">
+            <div><b>{{ d.sd | number: '1.2-2' }}</b><span>score spread (σ)</span></div>
+            <div><b>{{ d.dropRate | number: '1.0-1' }}%</b><span>drop rate</span></div>
+            <div><b>{{ d.planShare | number: '1.0-1' }}%</b><span>still plan to watch</span></div>
+          </div>
+        </section>
+      }
+
+      @if (full()?.theme; as th) {
+        @if (th.openings.length || th.endings.length) {
+          <section class="panel">
+            <h2>Theme songs</h2>
+            <ul class="songs">
+              @for (s of th.openings; track s) { <li><span class="kind">OP</span><a [href]="songSearch(s)" target="_blank" rel="noopener">{{ s }}</a></li> }
+              @for (s of th.endings; track s) { <li><span class="kind ed">ED</span><a [href]="songSearch(s)" target="_blank" rel="noopener">{{ s }}</a></li> }
+            </ul>
+          </section>
+        }
+      }
+    </div>
+
+    @if (mainCharacters().length) {
+      <section class="panel">
+        <h2>Characters &amp; Japanese voices</h2>
+        <div class="chars">
+          @for (c of mainCharacters(); track c.character.mal_id) {
+            <div class="char">
+              <img [src]="charImage(c)" [alt]="c.character.name" loading="lazy" />
+              <div>
+                <b>{{ c.character.name }}</b>
+                <span>{{ c.role }}</span>
+                @if (japaneseVoice(c)) { <span class="va">🎙 {{ japaneseVoice(c) }}</span> }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (related().length) {
+      <section class="panel">
+        <h2>Related</h2>
+        <div class="links">
+          @for (r of related(); track r.mal_id) {
+            <a class="link-chip" [routerLink]="['/anime', r.mal_id]"><small>{{ r.relation }}</small>{{ r.name }}</a>
+          }
+        </div>
+      </section>
+    }
+
+    @if (recos().length) {
+      <section class="panel">
+        <h2>If you liked this</h2>
+        <div class="recos">
+          @for (r of recos(); track r.entry.mal_id) {
+            <a class="reco" [routerLink]="['/anime', r.entry.mal_id]">
+              <img [src]="recoImage(r)" [alt]="r.entry.title" loading="lazy" />
+              <span>{{ r.entry.title }}</span>
+            </a>
+          }
+        </div>
+      </section>
+    }
+
+    @if (full()?.streaming?.length) {
+      <section class="panel">
+        <h2>Where to watch</h2>
+        <div class="links">
+          @for (s of full()?.streaming; track s.url) { <a class="link-chip" [href]="s.url" target="_blank" rel="noopener">{{ s.name }} ↗</a> }
+        </div>
+      </section>
+    }
+  </div>
+} @else {
+  <div class="detail-body">
+    <p class="live-note">{{ live() === 'down' ? 'This anime could not be loaded.' : 'Loading…' }}</p>
+  </div>
+}
