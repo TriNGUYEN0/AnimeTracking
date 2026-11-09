@@ -1,0 +1,63 @@
+<div class="airing">
+  <header class="head">
+    <div>
+      <p class="kicker">Live broadcast radar</p>
+      <h1>Airing this week</h1>
+      <p class="sub">Japanese TV slots converted to your time zone ({{ tzName }}). Streaming releases may differ slightly.</p>
+    </div>
+    @if (items()?.length) {
+      <label class="toggle"><input type="checkbox" [checked]="onlyFollowed()" (change)="onlyFollowed.set(!onlyFollowed())" /> Only shows I follow</label>
+    }
+  </header>
+
+  @if (items() === null) {
+    <p class="note">Loading the schedule…</p>
+  } @else if (!items()!.length) {
+    <div class="empty">
+      <h2>📡 The schedule is syncing</h2>
+      <p>The broadcast schedule is refreshed from the Jikan API every 6 hours. The API was unavailable during the last sync,
+        so this page will fill itself automatically once it is back — no action needed.</p>
+      @if (store.meta()?.airingUpdatedAt; as t) { <p class="muted">Last successful sync: {{ t | date: 'medium' }}</p> }
+    </div>
+  } @else {
+    @if (onAir().length) {
+      <div class="ticker" aria-label="On air now">
+        <span class="dot"></span> ON AIR
+        @for (s of onAir(); track s.id) { <a [routerLink]="['/anime', s.id]">{{ s.title }}</a> }
+      </div>
+    }
+
+    <section class="next-grid">
+      @for (s of upNext(); track s.id; let first = $first) {
+        <article class="next" [class.first]="first">
+          <a [routerLink]="['/anime', s.id]"><img [src]="posterUrl(s)" [alt]="s.title" loading="lazy" /></a>
+          <div class="next-info">
+            <span class="label">{{ first ? 'Next episode in' : 'In' }}</span>
+            <span class="count">{{ countdown(s.next) }}</span>
+            <a class="title" [routerLink]="['/anime', s.id]">{{ s.title }}</a>
+            <span class="when">{{ s.local }} · ⭐ {{ s.score || '–' }}</span>
+            <div class="row-actions">
+              <button (click)="toggleFollow(s.id)" [class.on]="isFollowed(s.id)">{{ isFollowed(s.id) ? '★ Following' : '☆ Follow' }}</button>
+              <button (click)="downloadIcs(s)" title="Add a weekly reminder to your calendar">📅 .ics</button>
+            </div>
+          </div>
+        </article>
+      }
+    </section>
+
+    <section class="week">
+      @for (c of week(); track c.label) {
+        <div class="day">
+          <h3>{{ c.label }}</h3>
+          @for (s of c.items; track s.id) {
+            <a class="slot" [class.followed]="isFollowed(s.id)" [routerLink]="['/anime', s.id]">
+              <b>{{ s.next | date: 'HH:mm' }}</b><span>{{ s.title }}</span>
+            </a>
+          } @empty {
+            <p class="muted">—</p>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>
