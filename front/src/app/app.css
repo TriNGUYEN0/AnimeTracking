@@ -61,7 +61,7 @@ nav a.active {
 }
 
 @media (max-width: 600px) {
-  header { padding: 0.8rem 1rem; gap: 12px; }
+  header { padding: 0.7rem 1rem; gap: 8px 12px; flex-wrap: wrap; }
   h1 { font-size: 1.15rem; }
-  nav { gap: 12px; font-size: 0.9rem; }
+  nav { gap: 14px; font-size: 0.9rem; width: 100%; justify-content: space-between; }
 }

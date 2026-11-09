@@ -1,0 +1,69 @@
+<div class="dle">
+  <header class="dle-head">
+    <div>
+      <p class="kicker">{{ practice() ? 'Practice round' : 'Daily puzzle #' + day }}</p>
+      <h1>Animedle</h1>
+      <p class="sub">Guess today's anime in {{ max }} tries. Each guess tells you how close you are.</p>
+    </div>
+    <div class="streak">
+      <div><b>{{ stats().streak }}</b><span>streak</span></div>
+      <div><b>{{ stats().wins }}/{{ stats().played }}</b><span>won</span></div>
+      <div><b>{{ stats().best }}</b><span>best</span></div>
+    </div>
+  </header>
+
+  @if (target(); as t) {
+    <div class="board">
+      <div class="mystery">
+        <img [src]="posterUrl(t, true)" alt="Mystery anime poster" [style.filter]="'blur(' + blur() + 'px)'" />
+        @if (!over()) { <span class="qmark">?</span> }
+      </div>
+
+      <div class="play">
+        @if (!over()) {
+          <div class="guess-box">
+            <input type="text" placeholder="Type an anime title…" [value]="query()" (input)="query.set($any($event.target).value)"
+                   autocomplete="off" spellcheck="false" aria-label="Your guess" />
+            @if (suggestions().length) {
+              <ul class="suggest">
+                @for (s of suggestions(); track s.id) {
+                  <li (click)="guess(s)"><img [src]="posterUrl(s)" alt="" />{{ s.title }}<small>{{ s.year || '' }}</small></li>
+                }
+              </ul>
+            }
+          </div>
+          <p class="left">{{ max - rows().length }} guesses left · the poster gets sharper with every guess</p>
+        } @else {
+          <div class="result" [class.win]="won()">
+            <h2>{{ won() ? 'You got it in ' + rows().length + '!' : 'Out of guesses' }}</h2>
+            <p>It was <a [routerLink]="['/anime', t.id]">{{ t.title }}</a> ({{ t.year || '?' }}).</p>
+            <div class="result-actions">
+              @if (!practice()) { <button class="btn primary" (click)="share()">{{ copied() ? 'Copied ✓' : 'Share result' }}</button> }
+              <button class="btn" (click)="newPractice()">Practice round</button>
+              @if (practice()) { <button class="btn" (click)="backToDaily()">Back to daily</button> }
+            </div>
+            @if (!practice()) { <p class="next">Next puzzle in <b>{{ countdown() }}</b></p> }
+          </div>
+        }
+
+        <div class="table" role="table" aria-label="Your guesses">
+          <div class="tr th" role="row">
+            <span role="columnheader">Anime</span>
+            @for (c of columns; track c) { <span role="columnheader">{{ c }}</span> }
+          </div>
+          @for (r of rows(); track r.anime.id) {
+            <div class="tr" role="row">
+              <span class="name" [class.hit]="r.win">{{ r.anime.title }}</span>
+              @for (c of r.cells; track $index) {
+                <span class="cell {{ c.hint }}">{{ c.text }}@if (c.arrow) { <i>{{ c.arrow }}</i> }</span>
+              }
+            </div>
+          }
+        </div>
+        <p class="legend"><span class="cell hit">match</span><span class="cell near">close</span><span class="cell miss">no</span> ↑ / ↓ = the answer is higher / lower</p>
+      </div>
+    </div>
+  } @else {
+    <p class="loading">Loading the puzzle…</p>
+  }
+</div>
