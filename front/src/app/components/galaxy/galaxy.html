@@ -1,0 +1,40 @@
+<div class="galaxy">
+  <canvas #cv aria-label="Map of anime: similar anime are close to each other"></canvas>
+
+  <div class="panel search">
+    <h1>Anime Galaxy</h1>
+    <p>Similar anime orbit together. Drag to fly, scroll or pinch to zoom, click a star. <a routerLink="/graphe">Classic graph →</a></p>
+    <input type="text" placeholder="Fly to… e.g. Frieren" [value]="query()" (input)="query.set($any($event.target).value)" aria-label="Find an anime in the galaxy" />
+    @if (suggestions().length) {
+      <ul>
+        @for (s of suggestions(); track s.a.id) {
+          <li (click)="focus(s)"><img [src]="posterUrl(s.a)" alt="" />{{ s.a.title }}</li>
+        }
+      </ul>
+    }
+  </div>
+
+  <div class="legend">
+    @for (p of palette; track p[0]) { <span><i [style.background]="p[1]"></i>{{ p[0] }}</span> }
+  </div>
+
+  @if (hovered(); as h) {
+    @if (h !== selected()) { <div class="hover-tag">{{ h.a.title }} · ⭐ {{ h.a.score }}</div> }
+  }
+
+  @if (selected(); as s) {
+    <aside class="panel card">
+      <button class="close" (click)="reset()" aria-label="Close">✕</button>
+      <img [src]="posterUrl(s.a, true)" [alt]="s.a.title" />
+      <h2>{{ s.a.title }}</h2>
+      <p class="meta">⭐ {{ s.a.score }} · {{ s.a.year || '—' }} · {{ s.a.genres.slice(0, 3).join(', ') }}</p>
+      <a class="btn" [routerLink]="['/anime', s.a.id]">Open page →</a>
+      <h3>Nearest stars</h3>
+      <ul class="near">
+        @for (n of neighbours(); track n.a.id) {
+          <li (click)="focus(n)"><img [src]="posterUrl(n.a)" alt="" /><span>{{ n.a.title }}</span></li>
+        }
+      </ul>
+    </aside>
+  }
+</div>
