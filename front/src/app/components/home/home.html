@@ -49,6 +49,21 @@
   }
 
   <div class="content-container">
+    <div class="feature-strip">
+      <a class="feature" routerLink="/dle">
+        <span class="f-icon">🧩</span>
+        <span><b>Animedle</b><small>Guess today's anime in 8 tries</small></span>
+      </a>
+      <a class="feature" routerLink="/airing">
+        <span class="f-icon">📡</span>
+        <span><b>Airing radar</b><small>Next episodes, in your time zone</small></span>
+      </a>
+      <button class="feature" type="button" (click)="openSearch()">
+        <span class="f-icon">⌕</span>
+        <span><b>Find any anime</b><small>Press <kbd>/</kbd> anywhere</small></span>
+      </button>
+    </div>
+
     <div class="mood-section">
       <h3>What's your mood today?</h3>
       <div class="mood-buttons">

@@ -63,6 +63,11 @@ export class HomeComponent {
     return w < 560 ? 2 : w < 820 ? 3 : w < 1100 ? 4 : 5;
   }
 
+  /** Opens the global command palette (same as pressing "/"). */
+  openSearch() {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
+  }
+
   selectMood(genre: string) {
     this.selectedMood.set(genre);
     this.index.set(0);
