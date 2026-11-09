@@ -1,0 +1,55 @@
+<div class="mylist">
+  <header class="head">
+    <div>
+      <p class="kicker">Stored only in this browser</p>
+      <h1>My list</h1>
+    </div>
+    <div class="io">
+      <button class="btn" (click)="exportList()" [disabled]="!tracker.count()">Export</button>
+      <label class="btn">Import<input type="file" accept="application/json" (change)="importList($event)" hidden /></label>
+    </div>
+  </header>
+  @if (message()) { <p class="msg">{{ message() }}</p> }
+
+  <section class="stats">
+    <div><b>{{ stats().episodes | number }}</b><span>episodes watched</span></div>
+    <div><b>{{ stats().days | number: '1.1-1' }}</b><span>days of anime</span></div>
+    <div><b>{{ stats().mean ? (stats().mean | number: '1.1-1') : '—' }}</b><span>your mean score</span></div>
+    <div><b>{{ stats().topGenre }}</b><span>favourite genre</span></div>
+  </section>
+
+  <section class="badges">
+    @for (b of badges(); track b.name) {
+      <div class="badge" [class.earned]="b.earned" [title]="b.desc"><span>{{ b.icon }}</span><b>{{ b.name }}</b><small>{{ b.desc }}</small></div>
+    }
+  </section>
+
+  <nav class="tabs">
+    @for (t of tabs; track t) {
+      <button [class.on]="tab() === t" (click)="tab.set(t)">{{ labels[t] }} <span>{{ counts()[t] }}</span></button>
+    }
+  </nav>
+
+  @for (i of visible(); track i.anime.id) {
+    <article class="row">
+      <a [routerLink]="['/anime', i.anime.id]"><img [src]="posterUrl(i.anime)" [alt]="i.anime.title" loading="lazy" /></a>
+      <div class="info">
+        <a class="title" [routerLink]="['/anime', i.anime.id]">{{ i.anime.title }}</a>
+        <div class="progress"><b [style.width.%]="i.anime.episodes ? (100 * i.entry.ep) / i.anime.episodes : 0"></b></div>
+        <span class="eps">{{ i.entry.ep }} / {{ i.anime.episodes || '?' }} episodes @if (i.entry.rating) { · ★ {{ i.entry.rating }} }</span>
+      </div>
+      <div class="controls">
+        <button (click)="step(i, -1)" aria-label="One episode less">−</button>
+        <button (click)="step(i, 1)" aria-label="One more episode">+1 ep</button>
+      </div>
+    </article>
+  } @empty {
+    <div class="empty">
+      @if (tracker.count()) {
+        <p>Nothing here yet.</p>
+      } @else {
+        <p>Your list is empty. Open any anime page and press <b>Track</b> to start — or try the <a routerLink="/">Omikuji</a> for an idea.</p>
+      }
+    </div>
+  }
+</div>

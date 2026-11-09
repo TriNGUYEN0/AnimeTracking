@@ -26,6 +26,26 @@
           @if (trailerUrl()) { <button class="btn primary" (click)="trailerOn.set(true)">▶ Watch trailer</button> }
           <a class="btn" [href]="malUrl(h)" target="_blank" rel="noopener">MyAnimeList ↗</a>
         </div>
+
+        <div class="track">
+          @if (entry(); as e) {
+            <select [value]="e.status" (change)="track({ status: $any($event.target).value })" aria-label="Status">
+              @for (s of statuses; track s) { <option [value]="s">{{ statusLabels[s] }}</option> }
+            </select>
+            <div class="stepper">
+              <button (click)="track({ ep: e.ep - 1 })" aria-label="One episode less">−</button>
+              <span>Ep {{ e.ep }} / {{ h.episodes || '?' }}</span>
+              <button (click)="track({ ep: e.ep + 1 })" aria-label="One more episode">+</button>
+            </div>
+            <select [value]="e.rating" (change)="track({ rating: +$any($event.target).value })" aria-label="Your score">
+              <option value="0">Your score</option>
+              @for (r of ratings; track r) { <option [value]="r">★ {{ r }}</option> }
+            </select>
+            <button class="link" (click)="untrack()">Remove</button>
+          } @else {
+            <button class="btn track-btn" (click)="track({ status: 'planned' })">＋ Track this anime</button>
+          }
+        </div>
       </div>
     </div>
   </section>

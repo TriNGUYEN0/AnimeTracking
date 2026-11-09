@@ -4,6 +4,7 @@ import { DecimalPipe } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DataStore, Anime, posterUrl, malUrl } from '../../services/data-store';
 import { JikanClient } from '../../services/jikan-client';
+import { Tracker, TrackStatus, STATUS_LABELS } from '../../services/tracker';
 
 interface Named { mal_id: number; name: string; type?: string }
 interface FullAnime {
@@ -69,6 +70,11 @@ export class AnimeDetailComponent {
   readonly recos = signal<Reco[]>([]);
   readonly live = signal<'loading' | 'ok' | 'down'>('loading');
   readonly trailerOn = signal(false);
+  readonly tracker = inject(Tracker);
+  readonly statusLabels = STATUS_LABELS;
+  readonly statuses = Object.keys(STATUS_LABELS) as TrackStatus[];
+  readonly entry = computed(() => this.tracker.entries()[this.id()]);
+  readonly ratings = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
   /** Header data: the local snapshot when we have it, otherwise whatever the live API returned. */
   readonly header = computed(() => {
@@ -120,6 +126,18 @@ export class AnimeDetailComponent {
 
   constructor() {
     inject(ActivatedRoute).paramMap.subscribe((p) => this.load(Number(p.get('id'))));
+  }
+
+  private totalEps(): number {
+    return this.header()?.episodes || 0;
+  }
+
+  track(patch: { status?: TrackStatus; ep?: number; rating?: number }) {
+    this.tracker.set(this.id(), patch, this.totalEps());
+  }
+
+  untrack() {
+    this.tracker.remove(this.id());
   }
 
   japaneseVoice(c: CharacterRole): string {

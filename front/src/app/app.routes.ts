@@ -7,6 +7,7 @@ export const routes: Routes = [
   { path: 'dashboard', loadComponent: () => import('./components/dashboard/dashboard').then((m) => m.DashboardComponent) },
   { path: 'anime/:id', loadComponent: () => import('./components/anime-detail/anime-detail').then((m) => m.AnimeDetailComponent) },
   { path: 'airing', loadComponent: () => import('./components/airing/airing').then((m) => m.AiringComponent) },
+  { path: 'my-list', loadComponent: () => import('./components/my-list/my-list').then((m) => m.MyListComponent) },
   { path: 'dle', loadComponent: () => import('./components/animedle/animedle').then((m) => m.AnimedleComponent) },
   { path: 'graphe', loadComponent: () => import('./components/graphe/graphe').then((m) => m.GrapheComponent) },
   { path: '**', redirectTo: '' },
