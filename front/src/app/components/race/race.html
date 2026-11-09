@@ -1,0 +1,30 @@
+<div class="race">
+  <div class="race-head">
+    <h3>The race: {{ mode() === 'studios' ? 'studios' : 'genres' }} by number of anime, {{ years().min }} → {{ shownYear() }}</h3>
+    <div class="modes">
+      <button [class.on]="mode() === 'studios'" (click)="setMode('studios')">Studios</button>
+      <button [class.on]="mode() === 'genres'" (click)="setMode('genres')">Genres</button>
+    </div>
+  </div>
+
+  <div class="track" [style.height.px]="bars().length * 34">
+    @for (b of bars(); track b.name) {
+      <div class="bar-row" [style.transform]="'translateY(' + b.rank * 34 + 'px)'">
+        <span class="label">{{ b.name }}</span>
+        <div class="bar-wrap">
+          <div class="bar" [style.width.%]="b.pct" [style.background]="b.color"></div>
+          <span class="value">{{ b.n }}</span>
+        </div>
+      </div>
+    }
+    <span class="big-year">{{ shownYear() }}</span>
+  </div>
+
+  <div class="controls">
+    <button class="play" (click)="toggle()" [attr.aria-label]="playing() ? 'Pause' : 'Play'">{{ playing() ? '❚❚' : '▶' }}</button>
+    <input type="range" [min]="years().min" [max]="years().max" [value]="shownYear()" (input)="scrub($any($event.target).value)" aria-label="Year" />
+  </div>
+  @if (coverage() < 0.6) {
+    <p class="note">Only {{ (coverage() * 100).toFixed(0) }}% of the anime in the current snapshot have a release year; the race becomes complete after the next full data sync.</p>
+  }
+</div>

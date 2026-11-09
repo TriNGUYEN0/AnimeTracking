@@ -2,6 +2,7 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { DataStore } from '../../services/data-store';
+import { RaceComponent } from '../race/race';
 import { ChartConfiguration, ChartData } from 'chart.js';
 
 export interface MetriquesCles {
@@ -14,7 +15,7 @@ export interface MetriquesCles {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [BaseChartDirective, DecimalPipe],
+  imports: [BaseChartDirective, DecimalPipe, RaceComponent],
   // Chart.js is registered here so it only ships in this lazily-loaded page.
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './dashboard.html',
