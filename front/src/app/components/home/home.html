@@ -31,10 +31,7 @@
         <div class="hero-content">
           <p class="intro-projet">
             Personal project exploring anime trends and statistics with data from MyAnimeList, via the Jikan API.<br>
-            Tri NGUYEN<br>
-            @if (store.meta(); as m) {
-              Data updated: {{ m.updatedAt | date: 'd MMM y' }} · {{ m.count.toLocaleString('en-US') }} anime
-            }
+            Tri NGUYEN
           </p>
           <span class="hero-rank">#{{ h.rank || 1 }} on MyAnimeList</span>
           <h1><a class="hero-link" [routerLink]="['/anime', h.id]">{{ h.title }}</a></h1>

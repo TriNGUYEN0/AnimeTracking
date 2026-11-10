@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal, HostListener } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DataStore, Anime, posterUrl } from '../../services/data-store';
 import { AnimeCardComponent } from '../anime-card/anime-card';
@@ -14,7 +13,7 @@ interface Mood {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AnimeCardComponent, RouletteComponent, DatePipe, RouterLink],
+  imports: [AnimeCardComponent, RouletteComponent, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
